@@ -1,9 +1,10 @@
 import "./App.css";
+import LandingPage from "./components/LandingPage";
 
 function App() {
   return (
     <div className="App">
-      <h1>Realtime Chat App</h1>
+      <LandingPage />
     </div>
   );
 }
