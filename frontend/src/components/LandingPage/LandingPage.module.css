@@ -1,0 +1,26 @@
+.imgContainer {
+  overflow: hidden;
+  width: 100%;
+}
+.imgStyling {
+  display: inline-block;
+  width: 100%;
+  margin-top: 5%;
+  height: 350px;
+}
+.loginContainer {
+  width: 100%;
+}
+
+@media screen and (max-width: 900px) {
+  .imgContainer {
+    width: 0;
+    display: none;
+  }
+  .imgStyling {
+    display: none;
+  }
+  .loginContainer {
+    width: 100%;
+  }
+}

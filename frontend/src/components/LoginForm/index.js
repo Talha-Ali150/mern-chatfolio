@@ -1,5 +1,5 @@
 import React from "react";
-import "./LoginForm.css";
+import styles from "./LoginForm.module.css";
 import { Button, Form, Input } from "antd";
 const onFinish = (values) => {
   console.log("Success:", values);
@@ -9,7 +9,7 @@ const onFinishFailed = (errorInfo) => {
 };
 const LoginForm = () => (
   <Form
-    className="loginFormStyling"
+    className={styles.loginFormStyling}
     name="basic"
     labelCol={{
       span: 8,
@@ -52,13 +52,21 @@ const LoginForm = () => (
 
     <Form.Item
       wrapperCol={{
-        offset: 8,
+        offset: 4,
         span: 16,
       }}
     >
-      <Button className="loginBtnStyling" htmlType="submit">
-        Log In
-      </Button>
+      <div
+        className={` container d-flex justify-content-between ${styles.formBtnContainer} `}
+      >
+        <Button className={styles.loginBtnStyling} htmlType="submit">
+          Log In
+        </Button>
+        <p>OR</p>
+        <Button className={styles.loginBtnStyling} htmlType="submit">
+          Sign Up
+        </Button>
+      </div>
     </Form.Item>
   </Form>
 );

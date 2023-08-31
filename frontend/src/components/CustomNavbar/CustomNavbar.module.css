@@ -1,0 +1,22 @@
+.navbarContainer {
+  width: 100%;
+  background-image: linear-gradient(to right, #f492f0, #a18dce);
+}
+.imgContainer {
+  width: 80%;
+  margin: 0 auto;
+}
+.imgStyling {
+  display: inline-block;
+  width: 100%;
+  height: 40px;
+  margin: 5px 0;
+}
+@media screen and (max-width: 900px) {
+  .navbarContainer {
+  }
+  .imgContainer {
+  }
+  .imgStyling {
+  }
+}

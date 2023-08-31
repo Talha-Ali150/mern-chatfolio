@@ -1,0 +1,27 @@
+.loginFormStyling {
+  width: 100%;
+  margin-top: 30%;
+  /* background-color: red; */
+}
+.loginBtnStyling {
+  color: white;
+  /* margin: 0 10%; */
+  background-image: linear-gradient(to right, #f492f0, #a18dce);
+}
+
+.formBtnContainer {
+  width: 60%;
+}
+
+@media screen and (max-width: 900px) {
+  body {
+    overflow: hidden;
+  }
+  .loginFormStyling {
+    width: 100%;
+  }
+  .formBtnContainer {
+    width: 60%;
+    margin-left: 0;
+  }
+}
