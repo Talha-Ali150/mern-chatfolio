@@ -1,13 +1,13 @@
 import React from "react";
 import coverImage from "../../images/cover.png";
 import styles from "./LandingPage.module.css";
-import LoginForm from "../LoginForm";
+import Tab from "../Tab";
 
 export default function LandingPage() {
   return (
     <div className={`container d-flex ${styles.mainContainer}`}>
       <div className={styles.loginContainer}>
-        <LoginForm />
+        <Tab className={styles.tabStyling} />
       </div>
       <div
         className={`imgContainer d-flex justify-content-center ${styles.imgContainer}`}

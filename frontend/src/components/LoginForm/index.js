@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./LoginForm.module.css";
-import { Button, Form, Input } from "antd";
+import { Form, Input, message } from "antd";
+import Button from "react-bootstrap/Button";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import {
@@ -22,6 +23,10 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log("user");
+  }, [dispatch]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = values;
@@ -41,16 +46,18 @@ const LoginForm = () => {
         console.log("log in successful");
         const { id, name, pic, token } = data;
         dispatch(userLoginResponse({ id, name, pic, token }));
-        // navigate("/chat");
+        navigate("/chat");
       }
     } catch (e) {
       console.log("error: invalid username or password");
       dispatch(userLoginFailure({ error: "invalid username or password" }));
+      message.error("invalid");
     }
   };
 
   return (
     <Form
+      onSubmit={handleSubmit}
       className={styles.loginFormStyling}
       name="basic"
       labelCol={{
@@ -67,14 +74,14 @@ const LoginForm = () => {
       autoComplete="off"
     >
       <Form.Item
-        label="Username"
-        name="username"
+        label="Email"
+        name="Email"
         onChange={(e) => setValues({ ...values, email: e.target.value })}
         value={values.email}
         rules={[
           {
             required: true,
-            message: "Please input your username!",
+            message: "Please input your email!",
           },
         ]}
       >
@@ -83,7 +90,7 @@ const LoginForm = () => {
 
       <Form.Item
         label="Password"
-        name="password"
+        name="Password"
         onChange={(e) => setValues({ ...values, password: e.target.value })}
         value={values.password}
         rules={[
@@ -98,7 +105,7 @@ const LoginForm = () => {
 
       <Form.Item
         wrapperCol={{
-          offset: 4,
+          offset: 10,
           span: 16,
         }}
       >
@@ -107,14 +114,10 @@ const LoginForm = () => {
         >
           <Button
             onClick={handleSubmit}
-            className={styles.loginBtnStyling}
-            htmlType="submit"
+            className={` ${styles.loginBtnStyling} btn-secondary`}
+            type="submit"
           >
             Log In
-          </Button>
-          <p>OR</p>
-          <Button className={styles.loginBtnStyling} htmlType="submit">
-            Sign Up
           </Button>
         </div>
       </Form.Item>
