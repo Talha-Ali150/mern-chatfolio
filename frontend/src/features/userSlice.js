@@ -22,10 +22,17 @@ export const userSlice = createSlice({
     userLogout: (state) => {
       return {};
     },
+    errorReset: (state) => {
+      state.error = false;
+    },
   },
 });
 
-export const { userLoginRequest, userLoginResponse, userLoginFailure } =
-  userSlice.actions;
+export const {
+  userLoginRequest,
+  userLoginResponse,
+  userLoginFailure,
+  errorReset,
+} = userSlice.actions;
 
 export default userSlice.reducer;

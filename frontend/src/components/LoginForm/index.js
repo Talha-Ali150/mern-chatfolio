@@ -3,38 +3,40 @@ import styles from "./LoginForm.module.css";
 import { Form, Input, message } from "antd";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   userLoginRequest,
   userLoginResponse,
   userLoginFailure,
+  errorReset,
 } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
-  const onFinish = (values) => {
-    console.log("Success:", values);
-  };
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const loginError = useSelector((state) => state.user.error);
+
+  const onFinish = (values) => {};
+  const onFinishFailed = (errorInfo) => {};
 
   const [values, setValues] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("user");
+    dispatch(errorReset());
   }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(errorReset());
     const { email, password } = values;
     try {
       dispatch(userLoginRequest());
       if (!email || !password) {
-        console.log("Please fill all the fields");
-        dispatch(userLoginFailure({ error: "please fill all the fields" }));
+        // message.warning("please fill all the fields");
+        dispatch(userLoginFailure({ error: "please fill all the fieds" }));
+        return;
       } else {
         const { data } = await axios.post(
           "http://localhost:5000/api/users/login",
@@ -49,9 +51,8 @@ const LoginForm = () => {
         navigate("/chat");
       }
     } catch (e) {
-      console.log("error: invalid username or password");
-      dispatch(userLoginFailure({ error: "invalid username or password" }));
-      message.error("invalid");
+      dispatch(userLoginFailure({ error: "invalid username or password  " }));
+      return;
     }
   };
 
@@ -76,7 +77,10 @@ const LoginForm = () => {
       <Form.Item
         label="Email"
         name="Email"
-        onChange={(e) => setValues({ ...values, email: e.target.value })}
+        onChange={(e) => {
+          setValues({ ...values, email: e.target.value });
+          dispatch(errorReset());
+        }}
         value={values.email}
         rules={[
           {
@@ -91,7 +95,10 @@ const LoginForm = () => {
       <Form.Item
         label="Password"
         name="Password"
-        onChange={(e) => setValues({ ...values, password: e.target.value })}
+        onChange={(e) => {
+          setValues({ ...values, password: e.target.value });
+          dispatch(errorReset());
+        }}
         value={values.password}
         rules={[
           {
@@ -112,6 +119,9 @@ const LoginForm = () => {
         <div
           className={` container d-flex justify-content-between ${styles.formBtnContainer} `}
         >
+          {loginError && (
+            <span style={{ display: "none" }}>{message.error(loginError)}</span>
+          )}
           <Button
             onClick={handleSubmit}
             className={` ${styles.loginBtnStyling} btn-secondary`}
