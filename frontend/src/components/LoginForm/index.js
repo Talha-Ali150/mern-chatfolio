@@ -58,7 +58,6 @@ const LoginForm = () => {
 
   return (
     <Form
-      onSubmit={handleSubmit}
       className={styles.loginFormStyling}
       name="basic"
       labelCol={{
@@ -123,9 +122,8 @@ const LoginForm = () => {
             <span style={{ display: "none" }}>{message.error(loginError)}</span>
           )}
           <Button
-            onClick={handleSubmit}
             className={` ${styles.loginBtnStyling} btn-secondary`}
-            type="submit"
+            onClick={handleSubmit}
           >
             Log In
           </Button>

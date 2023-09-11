@@ -1,16 +1,9 @@
 import React, { useState } from "react";
 import styles from "./SignupForm.module.css";
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 import Button from "react-bootstrap/Button";
 import UploadImage from "../UploadImage";
-// import axios from "axios";
-// import { useDispatch } from "react-redux";
-// import {
-//   userLoginRequest,
-//   userLoginResponse,
-//   userLoginFailure,
-// } from "../../features/userSlice";
-// import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignupForm = () => {
   const onFinish = (values) => {
@@ -20,15 +13,15 @@ const SignupForm = () => {
     console.log("Failed:", errorInfo);
   };
 
-  const [values, setValues] = useState({
+  const initialFormValues = {
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
     pic: "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e",
-  });
-  //   const dispatch = useDispatch();
-  //   const navigate = useNavigate();
+  };
+
+  const [values, setValues] = useState(initialFormValues);
 
   const handleImageUpload = (url) => {
     setValues({ ...values, pic: url });
@@ -38,46 +31,40 @@ const SignupForm = () => {
     e.preventDefault();
     const { email, password, name, confirmPassword } = values;
     try {
-      //   dispatch(userLoginRequest());
       if (!email || !password || !name) {
-        console.log("Please fill all the fields");
-        // dispatch(userLoginFailure({ error: "please fill all the fields" }));
+        message.warning("please fill all the fields");
       }
 
       const isValidEmail =
         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.email);
 
       if (!isValidEmail) {
-        console.log("Please enter a valid email address");
+        message.warning("Please enter a valid email address");
         return;
       }
 
       if (password !== confirmPassword) {
-        console.log("Passwords are different");
+        message.warning("Passwords are different");
         return;
       } else {
-        // const { data } = await axios.post(
-        //   "http://localhost:5000/api/users/login",
-        //   {
-        //     email,
-        //     password,
-        //   }
-        // );
-        console.log("signUUP successful");
-        console.log(values);
-        // const { id, name, pic, token } = data;
-        // dispatch(userLoginResponse({ id, name, pic, token }));
-        // navigate("/chat");
+        const { name, email, password, pic } = values;
+        await axios.post("http://localhost:5000/api/users/", {
+          name: name,
+          email: email,
+          password: password,
+          pic: pic,
+        });
+        message.success("Sign Up Successful!");
+
+        window.location.reload(false);
       }
     } catch (e) {
-      console.log("error signuuup: invalid username or password");
-      //   dispatch(userLoginFailure({ error: "invalid username or password" }));
+      message.error(e.response.data.message);
     }
   };
 
   return (
     <Form
-      onSubmit={handleSubmit}
       className={styles.loginFormStyling}
       name="basic"
       labelCol={{
@@ -167,7 +154,7 @@ const SignupForm = () => {
         >
           <Button
             className={` ${styles.loginBtnStyling} btn-secondary`}
-            type="submit"
+            onClick={handleSubmit}
           >
             Sign Up
           </Button>

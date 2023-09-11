@@ -33,6 +33,7 @@ export const {
   userLoginResponse,
   userLoginFailure,
   errorReset,
+  userLogout,
 } = userSlice.actions;
 
 export default userSlice.reducer;
