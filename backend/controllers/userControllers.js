@@ -85,5 +85,23 @@ const loginUser = async (req, res) => {
   }
 };
 
+const users = async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+  try {
+    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+
+    res.json(users);
+  } catch (e) {
+    res.status(401).json({ error: e });
+  }
+};
+
 //both  the register and login functions are exported to be used by the routes
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, loginUser, users };
