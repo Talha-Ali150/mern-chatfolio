@@ -12,6 +12,7 @@ const app = express();
 
 //importing routes related to user
 const userRouter = require("./routes/userRoutes");
+const chatRouter = require("./routes/chatRoutes");
 
 //importing and using dotenv package for securing environment variables
 const dotenv = require("dotenv").config();
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
 
 //using the routes made for users
 app.use("/api/users", userRouter);
+app.use("/api/chat", chatRouter);
 
 //specifying the port in case there is no port number specified in .env file
 const port = process.env.PORT || 5000;

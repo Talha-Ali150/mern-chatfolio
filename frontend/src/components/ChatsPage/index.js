@@ -4,13 +4,18 @@ import { useDispatch } from "react-redux";
 import { userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Spinner from "react-bootstrap/Spinner";
+import "react-chat-elements/dist/main.css";
+import { ChatList } from "react-chat-elements";
 
 export default function ChatsPage() {
+  const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(false);
   const [query, setQuery] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
   const searchUsers = async () => {
     try {
+      setLoading(true);
       const config = {
         headers: {
           Authorization: `Bearer ${userInfo.token}`,
@@ -24,7 +29,10 @@ export default function ChatsPage() {
       setSearchResults(response.data);
       return response.data;
     } catch (error) {
+      setLoading(true);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
   const dispatch = useDispatch();
@@ -43,20 +51,40 @@ export default function ChatsPage() {
       </button>
       <div>
         <h1>Search Results</h1>
-        {searchResults &&
-          searchResults.map((item, index) => {
-            return (
-              <div className="d-flex justify-content-between">
-                <span>S.No:{index}</span>
-                <span>name:{item.name}</span>
-                <span>email:{item.email}</span>
-              </div>
-            );
-          })}
+        {loading ? (
+          <Spinner />
+        ) : (
+          searchResults &&
+          searchResults.map((item, index) => (
+            <div className="d-flex justify-content-between" key={index}>
+              <ChatList
+                className="chat-list"
+                dataSource={[
+                  {
+                    avatar: item.pic,
+                    alt: "avatar",
+                    title: item.name,
+                    subtitle:
+                      "Why don't we go to the No Way Home movie this weekend ?",
+                    // date: new Date(),
+                    // unread: 3,
+                  },
+                ]}
+              />
+            </div>
+          ))
+        )}
       </div>
 
-      <input type="text" onChange={(e) => setQuery(e.target.value)} />
-      <button onClick={searchUsers}> click me </button>
+      <input
+        type="text"
+        onChange={(e) => {
+          setQuery(e.target.value);
+          searchUsers();
+        }}
+      />
+      {/* <button onClick={searchUsers}> click me </button> */}
+      <div></div>
     </div>
   );
 }
