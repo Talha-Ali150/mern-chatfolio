@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Spinner from "react-bootstrap/Spinner";
+import { Skeleton } from "antd";
 import "react-chat-elements/dist/main.css";
 import { ChatList } from "react-chat-elements";
 
@@ -50,9 +50,16 @@ export default function ChatsPage() {
         logout
       </button>
       <div>
+        <input
+          type="text"
+          onChange={(e) => {
+            setQuery(e.target.value);
+            searchUsers();
+          }}
+        />
         <h1>Search Results</h1>
         {loading ? (
-          <Spinner />
+          <Skeleton />
         ) : (
           searchResults &&
           searchResults.map((item, index) => (
@@ -66,8 +73,6 @@ export default function ChatsPage() {
                     title: item.name,
                     subtitle:
                       "Why don't we go to the No Way Home movie this weekend ?",
-                    // date: new Date(),
-                    // unread: 3,
                   },
                 ]}
               />
@@ -75,16 +80,6 @@ export default function ChatsPage() {
           ))
         )}
       </div>
-
-      <input
-        type="text"
-        onChange={(e) => {
-          setQuery(e.target.value);
-          searchUsers();
-        }}
-      />
-      {/* <button onClick={searchUsers}> click me </button> */}
-      <div></div>
     </div>
   );
 }
