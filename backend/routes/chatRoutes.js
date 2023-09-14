@@ -1,7 +1,7 @@
 const express = require("express");
-const accessChat = require("../controllers/chatControllers");
 const { protect } = require("../middlewares/auth");
+const createRetainChat = require("../controllers/chatControllers");
 const router = express.Router();
 
-router.route("/").post(protect, accessChat);
+router.route("/").post(protect, createRetainChat);
 module.exports = router;

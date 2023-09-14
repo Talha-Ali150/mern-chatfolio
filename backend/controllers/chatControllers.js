@@ -1,43 +1,36 @@
 const Chat = require("../models/chatModel");
-const User = require("../models/userModel");
-const accessChat = async (req, res) => {
+
+const createRetainChat = async (req, res) => {
   const { userId } = req.body;
   if (!userId) {
-    return res.status(400).json({ error: "no user id provided" });
+    res.status(400).json({ error: "userId not provided" });
+    return;
   }
-  let isChat = await Chat.find({
-    groupChat: false,
-    $and: [
-      { members: { $elemMatch: { $eq: req.user._id } } },
-      { members: { $elemMatch: { $eq: userId } } },
-    ],
-  })
-    .populate("members", "-password")
-    .populate("lastMessage");
-  isChat = await User.populate(isChat, {
-    path: "lastMessage.sender",
-    select: "name pic email",
-  });
-  if (isChat.length > 0) {
-    res.send(isChat[0]);
-  } else {
-    var chatData = {
-      chatTitle: "sender",
+  try {
+    const existingChat = await Chat.findOne({
       groupChat: false,
-      members: [req.user._id, userId],
-    };
-    try {
+      members: {
+        $all: [req.user._id, userId],
+      },
+    });
+    if (existingChat) {
+      res.status(200).json(existingChat);
+    } else {
+      const chatData = {
+        groupChat: false,
+        members: [userId, req.user._id],
+      };
       const createdChat = await Chat.create(chatData);
-      const fullChat = await Chat.findOne({ _id: createdChat._id }).populate(
+      const newChat = await Chat.findOne({ _id: createdChat._id }).populate(
         "members",
         "-password"
       );
-      res.status(200).send(fullChat);
-    } catch (e) {
-      res.status(400);
-      console.log(e);
+      res.status(201).json(newChat);
     }
+  } catch (e) {
+    res.status(501).json({ error: e });
+    console.log(e);
   }
 };
 
-module.exports = accessChat;
+module.exports = createRetainChat;
