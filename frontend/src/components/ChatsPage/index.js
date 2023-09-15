@@ -48,7 +48,6 @@ export default function ChatsPage() {
         "http://localhost:5000/api/chat/",
 
         {
-          //data to be sent using parameter
           userId: id,
         },
         config
@@ -56,6 +55,24 @@ export default function ChatsPage() {
       console.log("success", result);
     } catch (e) {
       // message.error(e.response.data.message);
+      console.log(e);
+    }
+  };
+
+  const getChats = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/chat/",
+        config
+      );
+      console.log(response.data);
+    } catch (e) {
       console.log(e);
     }
   };
@@ -107,6 +124,10 @@ export default function ChatsPage() {
             </div>
           ))
         )}
+      </div>
+      <div>
+        <h1>get LOGEED USER All CHATS Button</h1>
+        <button onClick={getChats}>GET CHATS</button>
       </div>
     </div>
   );

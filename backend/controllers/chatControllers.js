@@ -46,4 +46,49 @@ const getAllChats = async (req, res) => {
   }
 };
 
-module.exports = { createRetainChat, getAllChats };
+const createGroupChat = async (req, res) => {
+  console.log("function started");
+  const { chatTitle, members } = req.body;
+
+  if (!chatTitle || !members || members.length < 2) {
+    return res.status(400).json({ error: "Invalid request data" });
+  }
+  const updatedMembers = JSON.parse(members);
+
+  console.log("this is updted", updatedMembers);
+
+  try {
+    const existingChat = await Chat.findOne({
+      groupChat: true,
+      members: {
+        $all: updatedMembers,
+      },
+    }).populate("members", "-password");
+
+    if (existingChat) {
+      return res.status(200).json(existingChat);
+    }
+
+    updatedMembers.push(req.user._id);
+    const groupChat = await Chat.create({
+      chatTitle,
+      groupChat: true,
+      isAdmin: req.user._id,
+      members: updatedMembers,
+    });
+
+    const fullChat = await Chat.findOne({ _id: groupChat._id }).populate(
+      "members",
+      "-password"
+    );
+
+    res.status(201).json(fullChat);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+  console.log("function ended");
+};
+
+module.exports = createGroupChat;
+
+module.exports = { createRetainChat, getAllChats, createGroupChat };
