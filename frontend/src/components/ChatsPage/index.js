@@ -13,6 +13,7 @@ export default function ChatsPage() {
   const [searchResults, setSearchResults] = useState(false);
   const [query, setQuery] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
+
   const searchUsers = async () => {
     try {
       setLoading(true);
@@ -35,6 +36,30 @@ export default function ChatsPage() {
       setLoading(false);
     }
   };
+
+  const createChat = async (id) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+    try {
+      const result = await axios.post(
+        "http://localhost:5000/api/chat/",
+
+        {
+          //data to be sent using parameter
+          userId: id,
+        },
+        config
+      );
+      console.log("success", result);
+    } catch (e) {
+      // message.error(e.response.data.message);
+      console.log(e);
+    }
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   return (
@@ -65,6 +90,9 @@ export default function ChatsPage() {
           searchResults.map((item, index) => (
             <div className="d-flex justify-content-between" key={index}>
               <ChatList
+                onClick={() => {
+                  createChat(item._id);
+                }}
                 className="chat-list"
                 dataSource={[
                   {

@@ -33,4 +33,17 @@ const createRetainChat = async (req, res) => {
   }
 };
 
-module.exports = createRetainChat;
+const getAllChats = async (req, res) => {
+  try {
+    console.log("userId:", req.user._id);
+    const allChats = await Chat.find({
+      members: { $elemMatch: { $eq: req.user._id } },
+    }).populate("members", "-password");
+    res.status(200).json(allChats);
+    console.log("chats found", allChats);
+  } catch (e) {
+    res.status(500).json({ error: e });
+  }
+};
+
+module.exports = { createRetainChat, getAllChats };
