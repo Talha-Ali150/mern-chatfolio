@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { userLogout } from "../../features/userSlice";
@@ -7,10 +7,11 @@ import axios from "axios";
 import { Skeleton } from "antd";
 import "react-chat-elements/dist/main.css";
 import { ChatList } from "react-chat-elements";
+import MyModal from "../Modal";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
 
@@ -128,6 +129,10 @@ export default function ChatsPage() {
       <div>
         <h1>get LOGEED USER All CHATS Button</h1>
         <button onClick={getChats}>GET CHATS</button>
+      </div>
+      <div>
+        <h1>create group section</h1>
+        <MyModal />
       </div>
     </div>
   );

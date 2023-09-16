@@ -1,4 +1,5 @@
 const Chat = require("../models/chatModel");
+const User = require("../models/userModel");
 
 const createRetainChat = async (req, res) => {
   const { userId } = req.body;
@@ -89,6 +90,19 @@ const createGroupChat = async (req, res) => {
   console.log("function ended");
 };
 
-module.exports = createGroupChat;
+const getAllUsers = async (req, res) => {
+  try {
+    const response = await User.find({ _id: { $ne: req.user._id } });
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
 
-module.exports = { createRetainChat, getAllChats, createGroupChat };
+module.exports = {
+  createRetainChat,
+  getAllChats,
+  createGroupChat,
+  getAllUsers,
+};
