@@ -51,10 +51,13 @@ const createGroupChat = async (req, res) => {
   console.log("function started");
   const { chatTitle, members } = req.body;
 
-  if (!chatTitle || !members || members.length < 2) {
+  if (!chatTitle || !members) {
     return res.status(400).json({ error: "Invalid request data" });
   }
   const updatedMembers = JSON.parse(members);
+  if (updatedMembers.length< 2){
+    return res.status(400).json({error:"more than 2 users required"})
+  }
 
   console.log("this is updted", updatedMembers);
 

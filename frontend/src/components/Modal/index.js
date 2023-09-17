@@ -8,18 +8,53 @@ const MyModal = (props) => {
   const [addedUsers, setAddedUsers] = useState([]);
   const [userName, setUserName] = useState("");
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
 
   const showModal = () => {
     setIsModalOpen(true);
+    setFilteredData(data)
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+  
+    try {
+      // Assuming members is an array of user IDs, replace it with the actual members you want to add to the group chat
+
+
+      const members = []; // Replace with your actual member IDs
+      console.log('added users before making members',addedUsers)
+      addedUsers.map((item)=>{
+        members.push(item.id)
+      })
+      console.log('therse are members',members)
+  
+      const requestData = {
+        chatTitle: "XYZ CHAT",
+        members: JSON.stringify(members), // Convert members to a JSON string
+      };
+  
+      const response = await axios.post(
+        "http://localhost:5000/api/chat/groupChat",
+        requestData,
+        config
+      );
+  
+      console.log(response.data); // Assuming the response contains the created group chat details
+    } catch (e) {
+      
+      console.log(e.response.data.error);
+    }
+  
     setIsModalOpen(false);
   };
-
+  
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -38,13 +73,15 @@ const MyModal = (props) => {
       setData(response.data);
       console.log(response.data);
     } catch (e) {
-      console.log(e);
+      console.log(e)
     }
   };
 
   useEffect(() => {
+
     getUsers();
-  }, []);
+    console.log(addedUsers)
+  }, [addedUsers]);
 
   const handleSearch = () => {
     // Filter the data based on the search query
@@ -53,6 +90,13 @@ const MyModal = (props) => {
     );
 
     setFilteredData(filtered);
+  };
+
+  const removeUser = (userToRemove) => {
+    const updatedUsers = addedUsers.filter((user) => user.id !== userToRemove.id);
+    console.log('users after removing', updatedUsers)
+    setAddedUsers(updatedUsers);
+    console.log('checking aded users ', addedUsers)
   };
 
   return (
@@ -85,6 +129,7 @@ const MyModal = (props) => {
             value={userName}
             onChange={(e) => {
               setUserName(e.target.value);
+              setUserName(e.target.value);
               handleSearch();
             }}
           />
@@ -105,15 +150,10 @@ const MyModal = (props) => {
                 <Tag
                   bordered={false}
                   closable
-                  // onClose={() => {
-                  //   const updatedUsers = addedUsers.filter(
-                  //     (user, idx) => idx !== index
-                  //   );
-                  //   setAddedUsers(updatedUsers);
-                  // }}
-                  key={index}
+                  onClose={()=> removeUser({id:item.id})}
+                  key={item.id}
                 >
-                  {item}
+                  {item.name}
                 </Tag>
               );
             })}
@@ -125,8 +165,17 @@ const MyModal = (props) => {
             renderItem={(item, index) => (
               <List.Item
                 onClick={() => {
-                  setAddedUsers([...addedUsers, item.name]);
+                  if (!addedUsers.some(user => user.name === item.name)) {
+                    const temp = [...addedUsers]
+                    temp.push({name:item.name, id:item._id})
+                    setAddedUsers(temp);
+
+                    
+                  } else {
+                    console.log(`${item.name} is already added.`);
+                  }
                 }}
+
               >
                 <List.Item.Meta
                   avatar={<Avatar src={item.pic} />}
