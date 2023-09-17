@@ -46,39 +46,40 @@ const getAllChats = async (req, res) => {
     res.status(500).json({ error: e });
   }
 };
-
 const createGroupChat = async (req, res) => {
-  console.log("function started");
   const { chatTitle, members } = req.body;
 
   if (!chatTitle || !members) {
     return res.status(400).json({ error: "Invalid request data" });
   }
-  const updatedMembers = JSON.parse(members);
-  if (updatedMembers.length< 2){
-    return res.status(400).json({error:"more than 2 users required"})
-  }
 
-  console.log("this is updted", updatedMembers);
+  // Sort the members array to ensure consistency in checking for duplicates
+  const sortedMembers = JSON.parse(members).sort();
+
+  if (sortedMembers.length < 2) {
+    return res
+      .status(400)
+      .json({ error: "more than 2 users required to create group" });
+  }
+  if (chatTitle.trim() === "") {
+    return res.status(400).json({ error: "Chat title cannot be empty" });
+  }
 
   try {
     const existingChat = await Chat.findOne({
       groupChat: true,
-      members: {
-        $all: updatedMembers,
-      },
+      members: sortedMembers,
     }).populate("members", "-password");
 
     if (existingChat) {
       return res.status(200).json(existingChat);
     }
-
-    updatedMembers.push(req.user._id);
+    sortedMembers.push(req.user._id);
     const groupChat = await Chat.create({
       chatTitle,
       groupChat: true,
       isAdmin: req.user._id,
-      members: updatedMembers,
+      members: sortedMembers,
     });
 
     const fullChat = await Chat.findOne({ _id: groupChat._id }).populate(
@@ -90,7 +91,6 @@ const createGroupChat = async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
-  console.log("function ended");
 };
 
 const getAllUsers = async (req, res) => {
