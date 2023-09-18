@@ -103,9 +103,49 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const addUserToGroup = async (req, res) => {
+  const { groupId, addUserId } = req.body;
+
+  if (!groupId || !addUserId) {
+    return res.status(400).json({ error: "parameters not provided" });
+  }
+  try {
+    let chat = await Chat.findByIdAndUpdate(
+      groupId,
+      { $push: { members: addUserId } },
+      { new: true }
+    ).populate("members", "-password");
+    res.status(201).json(chat);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "an erroooor occured" });
+  }
+};
+
+const removeUserFromGroup = async (req, res) => {
+  const { groupId, removeUserId } = req.body;
+
+  if (!groupId || !removeUserId) {
+    return res.status(400).json({ error: "parameters not provided" });
+  }
+  try {
+    let chat = await Chat.findByIdAndUpdate(
+      groupId,
+      { $pull: { members: removeUserId } },
+      { new: true }
+    ).populate("members", "-password");
+    res.status(201).json(chat);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "an erroooor occured" });
+  }
+};
+
 module.exports = {
   createRetainChat,
   getAllChats,
   createGroupChat,
   getAllUsers,
+  addUserToGroup,
+  removeUserFromGroup,
 };
