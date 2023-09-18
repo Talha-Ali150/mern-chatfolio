@@ -4,8 +4,7 @@ const User = require("../models/userModel");
 const createRetainChat = async (req, res) => {
   const { userId } = req.body;
   if (!userId) {
-    res.status(400).json({ error: "userId not provided" });
-    return;
+    return res.status(400).json({ error: "userId not provided" });
   }
   try {
     const existingChat = await Chat.findOne({
@@ -15,7 +14,7 @@ const createRetainChat = async (req, res) => {
       },
     });
     if (existingChat) {
-      res.status(200).json(existingChat);
+      return res.status(200).json(existingChat);
     } else {
       const chatData = {
         groupChat: false,
@@ -26,11 +25,10 @@ const createRetainChat = async (req, res) => {
         "members",
         "-password"
       );
-      res.status(201).json(newChat);
+      return res.status(201).json(newChat);
     }
   } catch (e) {
-    res.status(501).json({ error: e });
-    console.log(e);
+    return res.status(501).json({ error: e });
   }
 };
 
@@ -40,10 +38,9 @@ const getAllChats = async (req, res) => {
     const allChats = await Chat.find({
       members: { $elemMatch: { $eq: req.user._id } },
     }).populate("members", "-password");
-    res.status(200).json(allChats);
-    console.log("chats found", allChats);
+    return res.status(200).json(allChats);
   } catch (e) {
-    res.status(500).json({ error: e });
+    return res.status(500).json({ error: e });
   }
 };
 const createGroupChat = async (req, res) => {
@@ -89,17 +86,17 @@ const createGroupChat = async (req, res) => {
 
     res.status(201).json(fullChat);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: e.message });
   }
 };
 
 const getAllUsers = async (req, res) => {
   try {
     const response = await User.find({ _id: { $ne: req.user._id } });
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (e) {
     console.log(e);
-    res.status(500).json({ error: "An error occurred" });
+    return res.status(500).json({ error: "An error occurred" });
   }
 };
 
@@ -115,10 +112,10 @@ const addUserToGroup = async (req, res) => {
       { $push: { members: addUserId } },
       { new: true }
     ).populate("members", "-password");
-    res.status(201).json(chat);
+    return res.status(201).json(chat);
   } catch (e) {
     console.log(e);
-    res.status(500).json({ error: "an erroooor occured" });
+    return res.status(500).json({ error: "an erroooor occured" });
   }
 };
 
@@ -137,7 +134,7 @@ const removeUserFromGroup = async (req, res) => {
     res.status(201).json(chat);
   } catch (e) {
     console.log(e);
-    res.status(500).json({ error: "an erroooor occured" });
+    return res.status(500).json({ error: "an erroooor occured" });
   }
 };
 
