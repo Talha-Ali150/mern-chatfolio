@@ -14,6 +14,12 @@ export default function ChatsPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
+  const [chats, setChats] = useState([]);
+
+  const currentUserId = async () => {
+    try {
+    } catch (e) {}
+  };
 
   const searchUsers = async () => {
     try {
@@ -73,6 +79,7 @@ export default function ChatsPage() {
         config
       );
       console.log(response.data);
+      setChats(response.data);
     } catch (e) {
       console.log(e);
     }
@@ -80,10 +87,15 @@ export default function ChatsPage() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getChats();
+  }, []);
+
   return (
-    <div>
-      <h1>CHats Page</h1>
-      <h3>WELCOME {userInfo.name}</h3>
+    <div className="container">
+      <h1 className="text-center">Chats Page</h1>
+      <h3 className="text-center">Welcome: {userInfo.name}</h3>
       <button
         onClick={() => {
           dispatch(userLogout());
@@ -117,8 +129,7 @@ export default function ChatsPage() {
                     avatar: item.pic,
                     alt: "avatar",
                     title: item.name,
-                    subtitle:
-                      "Why don't we go to the No Way Home movie this weekend ?",
+                    subtitle: item.lastMessage,
                   },
                 ]}
               />
@@ -127,8 +138,30 @@ export default function ChatsPage() {
         )}
       </div>
       <div>
-        <h1>get LOGEED USER All CHATS Button</h1>
-        <button onClick={getChats}>GET CHATS</button>
+        <h1>get logged in user's all chats</h1>
+        <div>
+          {chats &&
+            chats.map((item, index) => {
+              return (
+                <div className="d-flex justify-content-between" key={index}>
+                  <ChatList
+                    className="chat-list"
+                    dataSource={[
+                      {
+                        avatar:
+                          "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e",
+                        alt: "avatar",
+                        title: item.chatTitle,
+                        subtitle: item.lastMessage
+                          ? item.lastMessage.message
+                          : " ",
+                      },
+                    ]}
+                  />
+                </div>
+              );
+            })}
+        </div>
       </div>
       <div>
         <h1>create group section</h1>

@@ -1,6 +1,47 @@
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
 
+//chatTitle,groupChat,members,lastMessage,admin
+
+// const createRetainChat = async (req, res) => {
+//   const { userId } = req.body;
+//   if (!userId) {
+//     return res.status(400).json({ error: "userId not provided" });
+//   }
+//   try {
+//     const existingChat = await Chat.findOne({
+//       groupChat: false,
+//       members: {
+//         $all: [req.user._id, userId],
+//       },
+//     })
+//       .populate("members", "-password")
+//       .populate("lastMessage");
+//     if (existingChat) {
+//       return res.status(200).json(existingChat);
+//     } else {
+//       const chatData = {
+//         chatTitle: "sender",
+//         groupChat: false,
+//         members: [userId, req.user._id],
+//         lastMessage: null,
+//       };
+//       let createdChat = await Chat.create(chatData);
+//       createdChat = await Chat.findOne({ _id: createdChat._id })
+//         .populate("members", "-password")
+//         .populate("lastMessage");
+//       // createdChat = await User.populate({
+//       //   path: "lastMessage",
+//       //   select: "email name pic",
+//       // });
+//       return res.status(201).json(createdChat);
+//     }
+//   } catch (e) {
+//     console.log(e);
+//     return res.status(501).json({ error: e });
+//   }
+// };
+
 const createRetainChat = async (req, res) => {
   const { userId } = req.body;
   if (!userId) {
@@ -12,19 +53,24 @@ const createRetainChat = async (req, res) => {
       members: {
         $all: [req.user._id, userId],
       },
-    });
+    })
+      .populate({ path: "members", select: "name", model: "User" })
+      .populate({ path: "lastMessage", select: "message", model: "Message" });
+    // .populate("members", "-password");
     if (existingChat) {
       return res.status(200).json(existingChat);
     } else {
       const chatData = {
         groupChat: false,
         members: [userId, req.user._id],
+        lastMessage: null,
       };
       const createdChat = await Chat.create(chatData);
-      const newChat = await Chat.findOne({ _id: createdChat._id }).populate(
-        "members",
-        "-password"
-      );
+      const newChat = await Chat.findOne({ _id: createdChat._id });
+      // .populate(
+      //   "members",
+      //   "-password"
+      // );
       return res.status(201).json(newChat);
     }
   } catch (e) {
@@ -37,7 +83,10 @@ const getAllChats = async (req, res) => {
     console.log("userId:", req.user._id);
     const allChats = await Chat.find({
       members: { $elemMatch: { $eq: req.user._id } },
-    }).populate("members", "-password");
+    })
+      .populate("members", "-password")
+      .populate({ path: "lastMessage", select: "message", model: "Message" });
+    console.log(allChats);
     return res.status(200).json(allChats);
   } catch (e) {
     return res.status(500).json({ error: e });
@@ -73,7 +122,8 @@ const createGroupChat = async (req, res) => {
     }
     sortedMembers.push(req.user._id);
     const groupChat = await Chat.create({
-      chatTitle,
+      // chatTitle,
+      chatTitle: null,
       groupChat: true,
       isAdmin: req.user._id,
       members: sortedMembers,

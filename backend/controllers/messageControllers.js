@@ -1,3 +1,4 @@
+const Chat = require("../models/chatModel");
 const Message = require("../models/messageModel");
 const User = require("../models/userModel");
 const sendMessage = async (req, res) => {
@@ -12,12 +13,35 @@ const sendMessage = async (req, res) => {
       chat: chat,
     };
     let myMessage = await Message.create(newMessage);
-    myMessage = await myMessage.populate("sender", "name pic");
-    myMessage = await myMessage.populate("chat");
     myMessage = await User.populate(myMessage, {
-      path: "chat.members",
-      select: "email name pic",
+      path: "sender",
+      select: "name",
     });
+    myMessage = await Chat.populate(myMessage, {
+      path: "chat",
+      select: "chatTitle",
+    });
+    // myMessage = await User.populate()
+
+    // myMessage = await User.populate(myMessage, {
+    //   path: "members",
+    //   select: "email name",
+    //   model: "User",
+    // });
+    // myMessage = await myMessage.populate("sender", "name pic");
+    // myMessage = await myMessage.populate("chat");
+    // myMessage = await User.populate(myMessage, {
+    //   path: "chat.members",
+    //   select: "email name pic",
+    // });
+
+    // myMessage = await Chat.findByIdAndUpdate(chat, {
+    //   lastMessage: myMessage,
+    // });
+    await Chat.findByIdAndUpdate(chat, {
+      lastMessage: myMessage,
+    });
+    // .populate("lastMessage");
     console.log(myMessage);
     res.status(201).json(myMessage);
   } catch (e) {
