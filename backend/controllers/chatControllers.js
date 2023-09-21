@@ -122,8 +122,7 @@ const createGroupChat = async (req, res) => {
     }
     sortedMembers.push(req.user._id);
     const groupChat = await Chat.create({
-      // chatTitle,
-      chatTitle: null,
+      chatTitle: chatTitle,
       groupChat: true,
       isAdmin: req.user._id,
       members: sortedMembers,
@@ -188,6 +187,15 @@ const removeUserFromGroup = async (req, res) => {
   }
 };
 
+const getLoggedUserId = async (req, res) => {
+  try {
+    const loggedUserId = req.user._id;
+    return res.status(201).json(loggedUserId);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+};
+
 module.exports = {
   createRetainChat,
   getAllChats,
@@ -195,4 +203,5 @@ module.exports = {
   getAllUsers,
   addUserToGroup,
   removeUserFromGroup,
+  getLoggedUserId,
 };

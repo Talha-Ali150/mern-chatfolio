@@ -7,18 +7,33 @@ import axios from "axios";
 import { Skeleton } from "antd";
 import "react-chat-elements/dist/main.css";
 import { ChatList } from "react-chat-elements";
-import MyModal from "../Modal";
+import MyModal from "../Modal/index";
+import { getAllChats } from "../../features/chatSlice";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
-  const [chats, setChats] = useState([]);
+  const chatsList = useSelector((state) => state.chat.chats);
+  const [userId, setUserId] = useState("");
 
   const currentUserId = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
     try {
-    } catch (e) {}
+      const loggedUserId = await axios.get(
+        "http://localhost:5000/api/chat/getLoggedUserId",
+        config
+      );
+      setUserId(loggedUserId.data);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const searchUsers = async () => {
@@ -61,8 +76,9 @@ export default function ChatsPage() {
       );
       console.log("success", result);
     } catch (e) {
-      // message.error(e.response.data.message);
       console.log(e);
+    } finally {
+      dispatch(getAllChats(userInfo.token));
     }
   };
 
@@ -78,8 +94,6 @@ export default function ChatsPage() {
         "http://localhost:5000/api/chat/",
         config
       );
-      console.log(response.data);
-      setChats(response.data);
     } catch (e) {
       console.log(e);
     }
@@ -89,7 +103,7 @@ export default function ChatsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getChats();
+    currentUserId();
   }, []);
 
   return (
@@ -140,8 +154,11 @@ export default function ChatsPage() {
       <div>
         <h1>get logged in user's all chats</h1>
         <div>
-          {chats &&
-            chats.map((item, index) => {
+          {/* {chats && chats.length < 1 ? ( */}
+          {chatsList && chatsList.length < 1 ? (
+            <span>No Chats Found</span>
+          ) : (
+            chatsList.map((item, index) => {
               return (
                 <div className="d-flex justify-content-between" key={index}>
                   <ChatList
@@ -151,7 +168,12 @@ export default function ChatsPage() {
                         avatar:
                           "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e",
                         alt: "avatar",
-                        title: item.chatTitle,
+                        title: item.chatTitle
+                          ? item.chatTitle
+                          : item.members
+                              .filter((elem) => elem._id !== userId)
+                              .map((member) => member.name),
+
                         subtitle: item.lastMessage
                           ? item.lastMessage.message
                           : " ",
@@ -160,7 +182,8 @@ export default function ChatsPage() {
                   />
                 </div>
               );
-            })}
+            })
+          )}
         </div>
       </div>
       <div>

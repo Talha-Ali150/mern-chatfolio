@@ -7,6 +7,7 @@ const {
   getAllUsers,
   addUserToGroup,
   removeUserFromGroup,
+  getLoggedUserId,
 } = require("../controllers/chatControllers");
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router
   .put(protect, addUserToGroup)
   .delete(protect, removeUserFromGroup);
 router.route("/getUsers").get(protect, getAllUsers);
+router.route("/getLoggedUserId").get(protect, getLoggedUserId);
 
 module.exports = router;
