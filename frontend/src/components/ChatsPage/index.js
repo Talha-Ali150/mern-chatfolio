@@ -8,7 +8,7 @@ import { Skeleton } from "antd";
 import "react-chat-elements/dist/main.css";
 import { ChatList } from "react-chat-elements";
 import MyModal from "../Modal/index";
-import { getAllChats } from "../../features/chatSlice";
+import { getAllChats, resetChats } from "../../features/chatSlice";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
@@ -82,27 +82,28 @@ export default function ChatsPage() {
     }
   };
 
-  const getChats = async () => {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
+  // const getChats = async () => {
+  //   const config = {
+  //     headers: {
+  //       Authorization: `Bearer ${userInfo.token}`,
+  //     },
+  //   };
 
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/chat/",
-        config
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:5000/api/chat/",
+  //       config
+  //     );
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
+    dispatch(getAllChats(userInfo.token));
     currentUserId();
   }, []);
 
@@ -113,6 +114,7 @@ export default function ChatsPage() {
       <button
         onClick={() => {
           dispatch(userLogout());
+          dispatch(resetChats());
           navigate("/");
         }}
       >
@@ -165,8 +167,11 @@ export default function ChatsPage() {
                     className="chat-list"
                     dataSource={[
                       {
-                        avatar:
-                          "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e",
+                        avatar: item.groupChat
+                          ? "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e"
+                          : item.members
+                              .filter((elem) => elem._id !== userId)
+                              .map((member) => member.pic),
                         alt: "avatar",
                         title: item.chatTitle
                           ? item.chatTitle

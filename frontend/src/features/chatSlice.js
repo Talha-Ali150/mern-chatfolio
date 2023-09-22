@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const getAllChats = createAsyncThunk(
@@ -20,6 +20,8 @@ export const getAllChats = createAsyncThunk(
     }
   }
 );
+
+export const resetChats = createAction("chats/resetChats");
 
 const initialState = {
   chats: [],
@@ -61,6 +63,9 @@ export const chatSlice = createSlice({
       .addCase(getAllChats.rejected, (state, action) => {
         state.getChatStatus = "failed";
         state.getChatError = action.error.message;
+      })
+      .addCase(resetChats, (state) => {
+        return initialState;
       });
   },
 });
