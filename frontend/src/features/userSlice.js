@@ -25,7 +25,27 @@ export const userSlice = createSlice({
     errorReset: (state) => {
       state.error = false;
     },
+    setCurrentlyLoggedUser: (state, action) => {
+      return {
+        ...state,
+        userInfo: {
+          ...state.userInfo,
+          ...action.payload,
+        },
+      };
+    },
   },
+  // extraReducers: (builder) => {
+  //   builder.addCase(setCurrentlyLoggedUser, (state, action) => {
+  //     return {
+  //       ...state,
+  //       userInfo: {
+  //         ...state.userInfo,
+  //         ...action.payload,
+  //       },
+  //     };
+  //   });
+  // },
 });
 
 export const {
@@ -34,6 +54,7 @@ export const {
   userLoginFailure,
   errorReset,
   userLogout,
+  setCurrentlyLoggedUser,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { userLogout } from "../../features/userSlice";
+import { setCurrentlyLoggedUser, userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Skeleton } from "antd";
@@ -9,6 +9,7 @@ import "react-chat-elements/dist/main.css";
 import { ChatList } from "react-chat-elements";
 import MyModal from "../Modal/index";
 import { getAllChats, resetChats } from "../../features/chatSlice";
+import MyMessageBox from "../MyMessageBox";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,9 @@ export default function ChatsPage() {
         "http://localhost:5000/api/chat/getLoggedUserId",
         config
       );
+
+      console.log("user id data", loggedUserId);
+      dispatch(setCurrentlyLoggedUser(loggedUserId));
       setUserId(loggedUserId.data);
     } catch (e) {
       console.log(e);
@@ -153,9 +157,9 @@ export default function ChatsPage() {
           ))
         )}
       </div>
-      <div>
-        <h1>get logged in user's all chats</h1>
-        <div>
+      <div className="d-flex w-100">
+        {/* <h1>get logged in user's all chats</h1> */}
+        <div className="w-100">
           {/* {chats && chats.length < 1 ? ( */}
           {chatsList && chatsList.length < 1 ? (
             <span>No Chats Found</span>
@@ -164,7 +168,7 @@ export default function ChatsPage() {
               return (
                 <div className="d-flex justify-content-between" key={index}>
                   <ChatList
-                    className="chat-list"
+                    className="chat-list w-75"
                     dataSource={[
                       {
                         avatar: item.groupChat
@@ -189,6 +193,10 @@ export default function ChatsPage() {
               );
             })
           )}
+        </div>
+        <div className="text-bg-info w-100">
+          <h1>this will be message box</h1>
+          <MyMessageBox />
         </div>
       </div>
       <div>
