@@ -1,4 +1,5 @@
 import { MessageList } from "react-chat-elements";
+import { Input } from "react-chat-elements";
 
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -14,8 +15,9 @@ export default function MyMessageBox() {
   // console.log(fetchedChatList[2]);
   console.log(currentlyLoggedUserId);
 
-  // useEffect(() => {
-  // }, [])
+  useEffect(() => {
+    getMessages();
+  }, []);
 
   const getMessages = async () => {
     const config = {
@@ -40,7 +42,6 @@ export default function MyMessageBox() {
       title: item.sender.name,
       text: item.message,
       position: currentlyLoggedUserId == item.sender._id ? "right" : "left",
-      // position: "right",
     };
   });
 
@@ -50,22 +51,34 @@ export default function MyMessageBox() {
         className="message-list"
         lockable={true}
         toBottomHeight={"100%"}
-        // dataSource={[
-        //   {
-        //     position: "left",
-        //     type: "text",
-        //     title: "Kursat",
-        //     text: "Give me a message list example !",
-        //   },
-        //   {
-        //     position: "right",
-        //     type: "text",
-        //     title: "Emre",
-        //     text: "That's all.",
-        //   },
-        // ]}
         dataSource={renderMessageList}
       />
+      <div
+        className="w-75"
+        style={{ marginLeft: "10%", backgroundColor: "green" }}
+      >
+        <Input
+          inputStyle={{
+            overflow: "hidden",
+            width: "100%",
+            border: "1px solid",
+            borderRadius: "5px",
+          }}
+          placeholder="Type here..."
+          multiline={true}
+          rightButtons={
+            <button
+              style={{
+                color: "white",
+                backgroundColor: "black",
+                border: "none",
+              }}
+            >
+              send
+            </button>
+          }
+        />
+      </div>
       <button
         onClick={() => {
           getMessages();
