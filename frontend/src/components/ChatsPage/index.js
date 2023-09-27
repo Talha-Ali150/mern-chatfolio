@@ -100,7 +100,8 @@ export default function ChatsPage() {
       openChat(chatId);
       setMessageData("");
     }
-  }, [messageSent]);
+    console.log(messagesList)
+  }, [messageSent, messagesList]);
 
   const openChat = async (id) => {
     const config = {
@@ -120,7 +121,7 @@ export default function ChatsPage() {
       console.log(e);
     }
   };
-
+  
   const sendMessage = async (messageData) => {
     const config = {
       headers: {
@@ -254,6 +255,7 @@ export default function ChatsPage() {
                 <button
                   onClick={() => {
                     sendMessage(messageData);
+                    
                   }}
                   style={{
                     color: "white",
