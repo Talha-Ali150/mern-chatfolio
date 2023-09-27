@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { setCurrentlyLoggedUser, userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Skeleton } from "antd";
-import "react-chat-elements/dist/main.css";
-import { ChatList } from "react-chat-elements";
-import MyModal from "../Modal/index";
+import { ChatList, Input } from "react-chat-elements";
 import { getAllChats, resetChats } from "../../features/chatSlice";
 import MyMessageBox from "../MyMessageBox";
+import axios from "axios";
+import MyModal from "../Modal/index";
+import "react-chat-elements/dist/main.css";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
+  const [userId, setUserId] = useState("");
+  const [messagesList, setMessagesList] = useState([]);
+  const [messageData, setMessageData] = useState("");
+  const [chatId, setChatId] = useState("");
+  const [messageSent, setMessageSent] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
   const chatsList = useSelector((state) => state.chat.chats);
-  const [userId, setUserId] = useState("");
 
   const currentUserId = async () => {
     const config = {
@@ -86,31 +89,62 @@ export default function ChatsPage() {
     }
   };
 
-  // const getChats = async () => {
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${userInfo.token}`,
-  //     },
-  //   };
-
-  //   try {
-  //     const response = await axios.get(
-  //       "http://localhost:5000/api/chat/",
-  //       config
-  //     );
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getAllChats(userInfo.token));
     currentUserId();
-  }, []);
+    if (messageSent) {
+      setMessageSent(false);
+      openChat(chatId);
+      setMessageData("");
+    }
+  }, [messageSent]);
 
+  const openChat = async (id) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+    try {
+      const result = await axios.get(
+        `http://localhost:5000/api/message/${id}`,
+        config
+      );
+      await setMessagesList(result.data);
+      await console.log(result.data);
+      setChatId(id);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const sendMessage = async (messageData) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const messageDetails = {
+      message: messageData,
+      chat: chatId,
+    };
+    try {
+      const result = await axios.post(
+        "http://localhost:5000/api/message/",
+        messageDetails,
+        config
+      );
+      console.log(result);
+      setMessageSent(true);
+      setMessageData("");
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <div className="container">
       <h1 className="text-center">Chats Page</h1>
@@ -158,9 +192,7 @@ export default function ChatsPage() {
         )}
       </div>
       <div className="d-flex w-100">
-        {/* <h1>get logged in user's all chats</h1> */}
         <div className="w-100">
-          {/* {chats && chats.length < 1 ? ( */}
           {chatsList && chatsList.length < 1 ? (
             <span>No Chats Found</span>
           ) : (
@@ -188,15 +220,52 @@ export default function ChatsPage() {
                           : " ",
                       },
                     ]}
+                    onClick={() => {
+                      openChat(item._id);
+                    }}
                   />
                 </div>
               );
             })
           )}
         </div>
-        <div className="text-bg-info w-100">
-          <h1>this will be message box</h1>
-          <MyMessageBox />
+        <div className="container">
+          <div
+            className="mh-25 scrollable-container text-bg-info w-100"
+            style={{ maxHeight: 300, overflowY: "auto" }}
+          >
+            {/* <h1>this will be message box</h1> */}
+            <MyMessageBox messagesList={messagesList} />
+          </div>
+          <div>
+            <Input
+              value={messageData}
+              onChange={(e) => setMessageData(e.target.value)}
+              className="mt-2"
+              inputStyle={{
+                overflow: "hidden",
+                width: "100%",
+                border: "1px solid",
+                borderRadius: "5px",
+              }}
+              placeholder="Type here..."
+              multiline={true}
+              rightButtons={
+                <button
+                  onClick={() => {
+                    sendMessage(messageData);
+                  }}
+                  style={{
+                    color: "white",
+                    backgroundColor: "black",
+                    border: "none",
+                  }}
+                >
+                  send
+                </button>
+              }
+            />
+          </div>
         </div>
       </div>
       <div>
