@@ -43,4 +43,17 @@ app.use("/api/message", messageRouter);
 const port = process.env.PORT || 5000;
 
 //starting up the server on given port
-app.listen(port, () => console.log(`server running on port: ${port}`));
+const server = app.listen(port, () =>
+  console.log(`server running on port: ${port}`)
+);
+
+const socketIO = require("socket.io");
+const io = socketIO(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+io.on("connection", (socket) => {
+  console.log("a user connected");
+});
