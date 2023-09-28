@@ -15,6 +15,9 @@ const userRouter = require("./routes/userRoutes");
 const chatRouter = require("./routes/chatRoutes");
 const messageRouter = require("./routes/messageRoutes");
 
+//importing socket.io for realtime applications
+const socketIO = require("socket.io");
+
 //importing and using dotenv package for securing environment variables
 const dotenv = require("dotenv").config();
 
@@ -47,13 +50,21 @@ const server = app.listen(port, () =>
   console.log(`server running on port: ${port}`)
 );
 
-const socketIO = require("socket.io");
 const io = socketIO(server, {
   pingTimeout: 60000,
   cors: {
     origin: "http://localhost:3000",
   },
 });
-io.on("connection", (socket) => {
-  console.log("a user connected");
-});
+
+//sending message  to client
+// io.on("connection", (socket) => {
+//   socket.emit("first", "second message");
+// });
+
+//receiving message from client
+// io.on("connection", (socket) => {
+//   socket.on("first", (name) => {
+//     console.log(name);
+//   });
+// });
