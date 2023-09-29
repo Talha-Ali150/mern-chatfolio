@@ -9,6 +9,7 @@ import MyMessageBox from "../MyMessageBox";
 import axios from "axios";
 import MyModal from "../Modal/index";
 import "react-chat-elements/dist/main.css";
+import { io } from "socket.io-client";
 
 export default function ChatsPage() {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,8 @@ export default function ChatsPage() {
   const [messageSent, setMessageSent] = useState("");
   const userInfo = useSelector((state) => state.user.userInfo);
   const chatsList = useSelector((state) => state.chat.chats);
+
+  const socket = io("http://localhost:5000"); // Connect to the server
 
   const currentUserId = async () => {
     const config = {
@@ -35,8 +38,8 @@ export default function ChatsPage() {
         config
       );
 
-      console.log("user id data", loggedUserId);
-      dispatch(setCurrentlyLoggedUser(loggedUserId));
+      console.log("user id data", loggedUserId.data);
+      dispatch(setCurrentlyLoggedUser({ data: loggedUserId.data }));
       setUserId(loggedUserId.data);
     } catch (e) {
       console.log(e);
@@ -55,7 +58,7 @@ export default function ChatsPage() {
         `http://localhost:5000/api/users/?search=${query}`,
         config
       );
-      console.log(response.data);
+      // console.log(response.data);
       setSearchResults(response.data);
       return response.data;
     } catch (error) {
@@ -81,7 +84,7 @@ export default function ChatsPage() {
         },
         config
       );
-      console.log("success", result);
+      // console.log("success", result);
     } catch (e) {
       console.log(e);
     } finally {
@@ -95,12 +98,13 @@ export default function ChatsPage() {
   useEffect(() => {
     dispatch(getAllChats(userInfo.token));
     currentUserId();
+
     if (messageSent) {
       setMessageSent(false);
       openChat(chatId);
       setMessageData("");
     }
-    console.log(messagesList)
+    // console.log(messagesList);
   }, [messageSent, messagesList]);
 
   const openChat = async (id) => {
@@ -115,13 +119,13 @@ export default function ChatsPage() {
         config
       );
       await setMessagesList(result.data);
-      await console.log(result.data);
+      // await console.log(result.data);
       setChatId(id);
     } catch (e) {
       console.log(e);
     }
   };
-  
+
   const sendMessage = async (messageData) => {
     const config = {
       headers: {
@@ -139,16 +143,19 @@ export default function ChatsPage() {
         messageDetails,
         config
       );
-      console.log(result);
+      // console.log("this is results list", result.data);
+      const messageContents = result.data;
       setMessageSent(true);
       setMessageData("");
     } catch (e) {
       console.log(e);
     }
   };
+
   return (
     <div className="container">
       <h1 className="text-center">Chats Page</h1>
+
       <h3 className="text-center">Welcome: {userInfo.name}</h3>
       <button
         onClick={() => {
@@ -255,7 +262,6 @@ export default function ChatsPage() {
                 <button
                   onClick={() => {
                     sendMessage(messageData);
-                    
                   }}
                   style={{
                     color: "white",

@@ -80,13 +80,11 @@ const createRetainChat = async (req, res) => {
 
 const getAllChats = async (req, res) => {
   try {
-    console.log("userId:", req.user._id);
     const allChats = await Chat.find({
       members: { $elemMatch: { $eq: req.user._id } },
     })
       .populate("members", "-password")
       .populate({ path: "lastMessage", select: "message", model: "Message" });
-    console.log(allChats);
     return res.status(200).json(allChats);
   } catch (e) {
     return res.status(500).json({ error: e });

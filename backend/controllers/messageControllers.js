@@ -42,7 +42,7 @@ const sendMessage = async (req, res) => {
       lastMessage: myMessage,
     });
     // .populate("lastMessage");
-    console.log(myMessage);
+    // console.log(myMessage);
     res.status(201).json(myMessage);
   } catch (e) {
     console.log(e);
@@ -55,7 +55,7 @@ const fetchChatMessages = async (req, res) => {
     const fetchedChat = await Message.find({
       chat: req.params.chatId,
     }).populate("sender", "email name pic");
-    console.log(fetchedChat);
+    // console.log(fetchedChat);
     return res.status(201).json(fetchedChat);
   } catch (e) {
     console.log(e);
