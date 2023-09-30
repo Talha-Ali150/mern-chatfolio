@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentlyLoggedUser, userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
-import { Skeleton } from "antd";
-import { ChatList, Input } from "react-chat-elements";
+import { Button, Form, Input, Skeleton, Spin } from "antd";
+import { ChatList } from "react-chat-elements";
 import { getAllChats, resetChats } from "../../features/chatSlice";
 import MyMessageBox from "../MyMessageBox";
 import axios from "axios";
@@ -20,6 +20,7 @@ export default function ChatsPage() {
   const [messageData, setMessageData] = useState("");
   const [chatId, setChatId] = useState("");
   const [messageSent, setMessageSent] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const chatsList = useSelector((state) => state.chat.chats);
 
@@ -38,7 +39,7 @@ export default function ChatsPage() {
         config
       );
 
-      console.log("user id data", loggedUserId.data);
+      // console.log("user id data", loggedUserId.data);
       dispatch(setCurrentlyLoggedUser({ data: loggedUserId.data }));
       setUserId(loggedUserId.data);
     } catch (e) {
@@ -100,9 +101,8 @@ export default function ChatsPage() {
     currentUserId();
 
     if (messageSent) {
-      setMessageSent(false);
-      openChat(chatId);
       setMessageData("");
+      setMessageSent(false);
     }
     // console.log(messagesList);
   }, [messageSent, messagesList]);
@@ -126,7 +126,7 @@ export default function ChatsPage() {
     }
   };
 
-  const sendMessage = async (messageData) => {
+  const sendMessage = async (message) => {
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
@@ -134,7 +134,7 @@ export default function ChatsPage() {
     };
 
     const messageDetails = {
-      message: messageData,
+      message: message,
       chat: chatId,
     };
     try {
@@ -144,11 +144,15 @@ export default function ChatsPage() {
         config
       );
       // console.log("this is results list", result.data);
-      const messageContents = result.data;
+      // const messageContents = result.data;
       setMessageSent(true);
-      setMessageData("");
+      await setMessagesList([...messagesList, result.data]);
+      await setMessageData("");
     } catch (e) {
       console.log(e);
+    } finally {
+      setMessageData("");
+      setIsSending(false);
     }
   };
 
@@ -245,34 +249,31 @@ export default function ChatsPage() {
             {/* <h1>this will be message box</h1> */}
             <MyMessageBox messagesList={messagesList} />
           </div>
-          <div>
+          <div className="d-flex">
             <Input
+              placeholder="type something..."
               value={messageData}
-              onChange={(e) => setMessageData(e.target.value)}
-              className="mt-2"
-              inputStyle={{
-                overflow: "hidden",
-                width: "100%",
-                border: "1px solid",
-                borderRadius: "5px",
+              onChange={(e) => {
+                setMessageData(e.target.value);
               }}
-              placeholder="Type here..."
-              multiline={true}
-              rightButtons={
-                <button
-                  onClick={() => {
-                    sendMessage(messageData);
-                  }}
-                  style={{
-                    color: "white",
-                    backgroundColor: "black",
-                    border: "none",
-                  }}
-                >
-                  send
-                </button>
-              }
             />
+            {!isSending ? (
+              <button
+                onClick={() => {
+                  sendMessage(messageData);
+                  setIsSending(true);
+                }}
+                style={{
+                  color: "white",
+                  backgroundColor: "black",
+                  border: "none",
+                }}
+              >
+                Send
+              </button>
+            ) : (
+              <Spin />
+            )}
           </div>
         </div>
       </div>

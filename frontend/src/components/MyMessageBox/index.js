@@ -1,6 +1,6 @@
 import { MessageList } from "react-chat-elements";
 import { useSelector } from "react-redux";
-import ScrollableFeed from 'react-scrollable-feed'
+import ScrollableFeed from "react-scrollable-feed";
 
 export default function MyMessageBox({ messagesList }) {
   const currentlyLoggedUserId = useSelector(
@@ -18,14 +18,14 @@ export default function MyMessageBox({ messagesList }) {
 
   return (
     // <div>
-      <ScrollableFeed>
+    <ScrollableFeed>
       <MessageList
         className="message-list"
         lockable={true}
         toBottomHeight={"100%"}
         dataSource={renderMessageList}
       />
-      </ScrollableFeed>
+    </ScrollableFeed>
     // </div>
   );
 }

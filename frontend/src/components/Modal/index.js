@@ -33,11 +33,11 @@ const MyModal = () => {
       // Assuming members is an array of user IDs, replace it with the actual members you want to add to the group chat
 
       const members = []; // Replace with your actual member IDs
-      console.log("added users before making members", addedUsers);
+      // console.log("added users before making members", addedUsers);
       addedUsers.map((item) => {
         members.push(item.id);
       });
-      console.log("therse are members", members);
+      // console.log("therse are members", members);
 
       const requestData = {
         chatTitle: chatTitle,
@@ -50,7 +50,7 @@ const MyModal = () => {
         config
       );
 
-      console.log(response.data); // Assuming the response contains the created group chat details
+      // console.log(response.data); // Assuming the response contains the created group chat details
       // window.location.reload(false);
       dispatch(getAllChats(userInfo.token));
       setIsModalOpen(false);
@@ -75,7 +75,7 @@ const MyModal = () => {
         config
       );
       setData(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (e) {
       console.log(e);
     }
@@ -83,7 +83,7 @@ const MyModal = () => {
 
   useEffect(() => {
     getUsers();
-    console.log(addedUsers);
+    // console.log(addedUsers);
   }, [addedUsers]);
 
   const handleSearch = () => {
@@ -99,9 +99,9 @@ const MyModal = () => {
     const updatedUsers = addedUsers.filter(
       (user) => user.id !== userToRemove.id
     );
-    console.log("users after removing", updatedUsers);
+    // console.log("users after removing", updatedUsers);
     setAddedUsers(updatedUsers);
-    console.log("checking aded users ", addedUsers);
+    // console.log("checking aded users ", addedUsers);
   };
 
   return (
@@ -173,7 +173,7 @@ const MyModal = () => {
                     temp.push({ name: item.name, id: item._id });
                     setAddedUsers(temp);
                   } else {
-                    console.log(`${item.name} is already added.`);
+                    // console.log(`${item.name} is already added.`);
                   }
                 }}
               >
