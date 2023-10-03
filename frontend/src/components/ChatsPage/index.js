@@ -25,6 +25,27 @@ export default function ChatsPage() {
   const chatsList = useSelector((state) => state.chat.chats);
 
   const socket = io("http://localhost:5000"); // Connect to the server
+  useEffect(() => {
+    dispatch(getAllChats(userInfo.token));
+    currentUserId();
+
+    if (chatId) {
+      socket.emit("join chat", chatId);
+    }
+
+    if (messageSent) {
+      setMessageData("");
+      setMessageSent(false);
+    }
+    // console.log(messagesList);
+  }, [messageSent, messagesList]);
+
+  useEffect(() => {
+    socket.on("message received", (msg) => {
+      setMessagesList([...messagesList, msg]);
+      console.log(messagesList);
+    });
+  }, []);
 
   const currentUserId = async () => {
     const config = {
@@ -96,16 +117,27 @@ export default function ChatsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    dispatch(getAllChats(userInfo.token));
-    currentUserId();
+  // useEffect(() => {
+  //   dispatch(getAllChats(userInfo.token));
+  //   currentUserId();
 
-    if (messageSent) {
-      setMessageData("");
-      setMessageSent(false);
-    }
-    // console.log(messagesList);
-  }, [messageSent, messagesList]);
+  //   if (chatId) {
+  //     socket.emit("join chat", chatId);
+  //   }
+
+  //   if (messageSent) {
+  //     setMessageData("");
+  //     setMessageSent(false);
+  //   }
+  //   // console.log(messagesList);
+  // }, [messageSent, messagesList]);
+
+  // useEffect(() => {
+  //   socket.on("new message", (msg) => {
+  //     setMessagesList([...messagesList, msg]);
+  //     console.log(messagesList);
+  //   });
+  // }, []);
 
   const openChat = async (id) => {
     const config = {
@@ -146,6 +178,7 @@ export default function ChatsPage() {
       // console.log("this is results list", result.data);
       // const messageContents = result.data;
       setMessageSent(true);
+      socket.emit("new message", result.data);
       await setMessagesList([...messagesList, result.data]);
       await setMessageData("");
     } catch (e) {
@@ -249,7 +282,7 @@ export default function ChatsPage() {
             {/* <h1>this will be message box</h1> */}
             <MyMessageBox messagesList={messagesList} />
           </div>
-          <div className="d-flex">
+          <div className="d-flex" id="inputContainer">
             <Input
               placeholder="type something..."
               value={messageData}

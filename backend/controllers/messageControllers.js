@@ -19,30 +19,15 @@ const sendMessage = async (req, res) => {
     });
     myMessage = await Chat.populate(myMessage, {
       path: "chat",
-      select: "chatTitle",
+      select: "chatTitle members",
     });
-    // myMessage = await User.populate()
-
-    // myMessage = await User.populate(myMessage, {
-    //   path: "members",
-    //   select: "email name",
-    //   model: "User",
-    // });
-    // myMessage = await myMessage.populate("sender", "name pic");
-    // myMessage = await myMessage.populate("chat");
-    // myMessage = await User.populate(myMessage, {
-    //   path: "chat.members",
-    //   select: "email name pic",
-    // });
-
-    // myMessage = await Chat.findByIdAndUpdate(chat, {
-    //   lastMessage: myMessage,
-    // });
+    myMessage = await User.populate(myMessage, {
+      path: "chat.members",
+      select: "name email",
+    });
     await Chat.findByIdAndUpdate(chat, {
       lastMessage: myMessage,
     });
-    // .populate("lastMessage");
-    // console.log(myMessage);
     res.status(201).json(myMessage);
   } catch (e) {
     console.log(e);
