@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentlyLoggedUser, userLogout } from "../../features/userSlice";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Skeleton, Spin } from "antd";
-import { ChatList } from "react-chat-elements";
+import { ChatList, MessageList } from "react-chat-elements";
 import { getAllChats, resetChats } from "../../features/chatSlice";
 import MyMessageBox from "../MyMessageBox";
 import axios from "axios";
@@ -23,29 +23,22 @@ export default function ChatsPage() {
   const [isSending, setIsSending] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const chatsList = useSelector((state) => state.chat.chats);
+  const [socket, setSocket] = useState(null);
+  const [fromBackend, setFromBackend] = useState("");
 
-  const socket = io("http://localhost:5000"); // Connect to the server
   useEffect(() => {
-    dispatch(getAllChats(userInfo.token));
     currentUserId();
-
+    dispatch(getAllChats(userInfo.token));
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
     if (chatId) {
-      socket.emit("join chat", chatId);
-    }
+      newSocket.emit("join chat", chatId);
 
-    if (messageSent) {
-      setMessageData("");
-      setMessageSent(false);
+      newSocket.on("my message", (msg) => {
+        setMessagesList([...messagesList, msg]);
+      });
     }
-    // console.log(messagesList);
-  }, [messageSent, messagesList]);
-
-  useEffect(() => {
-    socket.on("message received", (msg) => {
-      setMessagesList([...messagesList, msg]);
-      console.log(messagesList);
-    });
-  }, []);
+  }, [messagesList]);
 
   const currentUserId = async () => {
     const config = {
@@ -60,7 +53,6 @@ export default function ChatsPage() {
         config
       );
 
-      // console.log("user id data", loggedUserId.data);
       dispatch(setCurrentlyLoggedUser({ data: loggedUserId.data }));
       setUserId(loggedUserId.data);
     } catch (e) {
@@ -80,7 +72,7 @@ export default function ChatsPage() {
         `http://localhost:5000/api/users/?search=${query}`,
         config
       );
-      // console.log(response.data);
+
       setSearchResults(response.data);
       return response.data;
     } catch (error) {
@@ -106,7 +98,6 @@ export default function ChatsPage() {
         },
         config
       );
-      // console.log("success", result);
     } catch (e) {
       console.log(e);
     } finally {
@@ -116,28 +107,6 @@ export default function ChatsPage() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   dispatch(getAllChats(userInfo.token));
-  //   currentUserId();
-
-  //   if (chatId) {
-  //     socket.emit("join chat", chatId);
-  //   }
-
-  //   if (messageSent) {
-  //     setMessageData("");
-  //     setMessageSent(false);
-  //   }
-  //   // console.log(messagesList);
-  // }, [messageSent, messagesList]);
-
-  // useEffect(() => {
-  //   socket.on("new message", (msg) => {
-  //     setMessagesList([...messagesList, msg]);
-  //     console.log(messagesList);
-  //   });
-  // }, []);
 
   const openChat = async (id) => {
     const config = {
@@ -151,7 +120,8 @@ export default function ChatsPage() {
         config
       );
       await setMessagesList(result.data);
-      // await console.log(result.data);
+      console.log(messagesList);
+
       setChatId(id);
     } catch (e) {
       console.log(e);
@@ -175,12 +145,10 @@ export default function ChatsPage() {
         messageDetails,
         config
       );
-      // console.log("this is results list", result.data);
-      // const messageContents = result.data;
       setMessageSent(true);
-      socket.emit("new message", result.data);
-      await setMessagesList([...messagesList, result.data]);
-      await setMessageData("");
+      socket.emit("new message", { room: chatId, msg: result.data });
+      setMessagesList([...messagesList, result.data]);
+      setMessageData("");
     } catch (e) {
       console.log(e);
     } finally {
@@ -192,6 +160,7 @@ export default function ChatsPage() {
   return (
     <div className="container">
       <h1 className="text-center">Chats Page</h1>
+      <h3>{fromBackend}</h3>
 
       <h3 className="text-center">Welcome: {userInfo.name}</h3>
       <button

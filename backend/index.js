@@ -62,29 +62,52 @@ const io = socketIO(server, {
 //   socket.emit("first", "second message");
 // });
 
-io.on("connection", (socket) => {
-  console.log("connected to socket.io");
-  socket.on("join chat", (room) => {
-    socket.join(room);
-    console.log(`user joined room: ${room}`);
-  });
-  socket.on("new message", (msg) => {
-    console.log("this si message", msg);
-    let chat = msg.chat;
-    if (!chat.members) {
-      return console.log("chat members not defined");
-    }
-    chat.members.forEach((member) => {
-      if (member._id === msg.sender._id) {
-        return;
-      }
-      socket.in(member._id).emit("message received", msg);
-    });
-  });
-});
+// io.on("connection", (socket) => {
+//   console.log("connected to socket.io");
+//   socket.on("join chat", (room) => {
+//     socket.join(room);
+//     console.log(`user joined room: ${room}`);
+//   });
+//   socket.on("new message", (msg) => {
+//     console.log("this si message", msg);
+//     let chat = msg.chat;
+//     if (!chat.members) {
+//       return console.log("chat members not defined");
+//     }
+//     chat.members.forEach((member) => {
+//       if (member._id === msg.sender._id) {
+//         return;
+//       }
+//       socket.in(member._id).emit("message received", msg);
+//     });
+//   });
+// });
+
 //receiving message from client
 // io.on("connection", (socket) => {
 //   socket.on("first", (name) => {
 //     console.log(name);
 //   });
 // });
+
+// io.on("connection", (socket) => {
+//   console.log("connected to socket.io ...");
+//   socket.on("join room", (room) => {
+//     socket.join(room);
+//     console.log(`user joined room: ${room}`);
+//   });
+//   socket.on("send message", (msg) => {
+//     console.log(`this is message: ${msg}`);
+//   });
+// });
+
+io.on("connection", (socket) => {
+  console.log(`${socket.id} connected`);
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log(`user joined room: ${room}`);
+  });
+  socket.on("new message", (msgDet) => {
+    socket.to(msgDet.room).emit("my message", msgDet.msg);
+  });
+});
