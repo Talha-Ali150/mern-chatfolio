@@ -102,12 +102,40 @@ const io = socketIO(server, {
 // });
 
 io.on("connection", (socket) => {
-  console.log(`${socket.id} connected`);
+  console.log(`${socket.id} connected to socket.io`);
   socket.on("join chat", (room) => {
     socket.join(room);
     console.log(`user joined room: ${room}`);
   });
   socket.on("new message", (msgDet) => {
     socket.to(msgDet.room).emit("my message", msgDet.msg);
+  });
+
+  // socket.on("typing", (room) => {
+  //   socket.to(room).emit("user typing", room);
+  // });
+  // socket.on("stopped typing", (room) => {
+  //   socket.to(room).emit("user stopped typing", room);
+  // });
+
+  // socket.on("typing", (room) => {
+  //   socket.to(room.id).emit("user typing", `${room.user} is typing`);
+  // });
+
+  // socket.on("stopped typing", (room) => {
+  //   socket
+  //     .to(room.id)
+  //     .emit("user stopped typing", `${room.user} has stopped typing`);
+  // });
+
+  socket.on("typing", (data) => {
+    socket.to(data.id).emit("user typing", data.message);
+    console.log(
+      `ths is room when user was typing: ${data.id} message: ${data.message}`
+    );
+  });
+  socket.on("stopped typing", (data) => {
+    socket.to(data.id).emit("user stopped typing", data.message);
+    console.log(`ths is room when user stopped typing: ${data.id}`);
   });
 });

@@ -19,26 +19,67 @@ export default function ChatsPage() {
   const [messagesList, setMessagesList] = useState([]);
   const [messageData, setMessageData] = useState("");
   const [chatId, setChatId] = useState("");
-  const [messageSent, setMessageSent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const chatsList = useSelector((state) => state.chat.chats);
-  const [socket, setSocket] = useState(null);
   const [fromBackend, setFromBackend] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  const [messageText, setMessageText] = useState("");
+  const [socket, setSocket] = useState("");
 
   useEffect(() => {
     currentUserId();
-    dispatch(getAllChats(userInfo.token));
     const newSocket = io("http://localhost:5000");
     setSocket(newSocket);
-    if (chatId) {
-      newSocket.emit("join chat", chatId);
+    newSocket.on("user typing", (data) => {
+      console.log(data);
+      setIsTyping(true);
+    });
+    newSocket.on("user stopped typing", (data) => {
+      console.log(data);
+      setIsTyping(false);
+    });
+  }, []);
 
-      newSocket.on("my message", (msg) => {
-        setMessagesList([...messagesList, msg]);
-      });
-    }
-  }, [messagesList]);
+  // useEffect(() => {
+  //   dispatch(getAllChats(userInfo.token));
+  //   if (chatId) {
+  //     socket.emit("join chat", chatId);
+
+  //     socket.on("my message", (msg) => {
+  //       setMessagesList([...messagesList, msg]);
+  //     });
+  //     // typingIndicator();
+  //   }
+  // }, [messagesList]);
+
+  // useEffect(() => {
+  //   if (chatId) {
+  //     socket.on("user typing", (data) => {
+  //       console.log(data);
+  //       // setIsTyping(true);
+  //     });
+  //     socket.on("user stopped typing", (data) => {
+  //       console.log(data);
+  //       // setIsTyping(false);
+  //     });
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   socket.on("user typing", (data) => {
+  //     console.log(data);
+  //     setIsTyping(true);
+  //   });
+  //   socket.on("user stopped typing", (data) => {
+  //     console.log(data);
+  //     setIsTyping(false);
+  //   });
+  // }, [messageData]);
+
+  // useEffect(() => {
+
+  // }, []);
 
   const currentUserId = async () => {
     const config = {
@@ -145,7 +186,6 @@ export default function ChatsPage() {
         messageDetails,
         config
       );
-      setMessageSent(true);
       socket.emit("new message", { room: chatId, msg: result.data });
       setMessagesList([...messagesList, result.data]);
       setMessageData("");
@@ -156,6 +196,17 @@ export default function ChatsPage() {
       setIsSending(false);
     }
   };
+
+  // const typingIndicator = (message) => {
+  //   setMessageText(message);
+  //   if (message && messageText.trim() === "") {
+  //     // console.log(`this is if ${messageText}`);
+  //     socket.emit("stop typing", { id: chatId, user: "taz" });
+  //   } else {
+  //     // console.log(`this is else: ${messageText}`);
+  //     socket.emit("typing", { id: chatId, user: "taz" });
+  //   }
+  // };
 
   return (
     <div className="container">
@@ -244,11 +295,11 @@ export default function ChatsPage() {
           )}
         </div>
         <div className="container">
+          {isTyping && <p>user is typing ...</p>}
           <div
             className="mh-25 scrollable-container text-bg-info w-100"
             style={{ maxHeight: 300, overflowY: "auto" }}
           >
-            {/* <h1>this will be message box</h1> */}
             <MyMessageBox messagesList={messagesList} />
           </div>
           <div className="d-flex" id="inputContainer">
@@ -256,7 +307,28 @@ export default function ChatsPage() {
               placeholder="type something..."
               value={messageData}
               onChange={(e) => {
+                // if (e.target.value.trim() === "") {
+                //   socket.emit("stopped typing", chatId);
+                // } else {
+                //   socket.emit("typing", chatId);
+                // }
+
                 setMessageData(e.target.value);
+                // typingIndicator();
+              }}
+              onFocus={() => {
+                socket.emit("typing", {
+                  id: chatId,
+                  message: "user likh raha hai",
+                });
+                console.log("i start type");
+              }}
+              onBlur={() => {
+                socket.emit("stopped typing", {
+                  id: chatId,
+                  message: "user likh raha hai",
+                });
+                console.log("i stop type");
               }}
             />
             {!isSending ? (
