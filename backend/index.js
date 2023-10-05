@@ -128,14 +128,10 @@ io.on("connection", (socket) => {
   //     .emit("user stopped typing", `${room.user} has stopped typing`);
   // });
 
-  socket.on("typing", (data) => {
-    socket.to(data.id).emit("user typing", data.message);
-    console.log(
-      `ths is room when user was typing: ${data.id} message: ${data.message}`
-    );
+  socket.on("typing", (room) => {
+    socket.to(room).emit("user typing");
   });
-  socket.on("stopped typing", (data) => {
-    socket.to(data.id).emit("user stopped typing", data.message);
-    console.log(`ths is room when user stopped typing: ${data.id}`);
+  socket.on("stopped typing", (room) => {
+    socket.to(room).emit("user stopped typing");
   });
 });
