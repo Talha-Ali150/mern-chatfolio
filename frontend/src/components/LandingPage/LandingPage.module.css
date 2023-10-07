@@ -1,4 +1,4 @@
-.imgContainer {
+/* .imgContainer {
   overflow: hidden;
   width: 100%;
 }
@@ -22,5 +22,59 @@
   }
   .loginContainer {
     width: 100%;
+  }
+} */
+
+/* breakpoints
+0
+576
+768
+992
+1200
+1400 */
+
+@media only screen and (min-width: 320px) {
+  body {
+    /* background-color: maroon; */
+  }
+  .mainContainer {
+    /* background-color: yellow; */
+    width: 100%;
+  }
+  .loginContainer {
+    width: 100%;
+    /* background-color: green; */
+  }
+  /* .imgContainer {
+    display: none;
+    width: 0;
+  } */
+  .imgStyling {
+    display: none;
+  }
+}
+@media only screen and (min-width: 576px) {
+  body {
+    background-color: blue;
+  }
+}
+@media only screen and (min-width: 768px) {
+  body {
+    background-color: green;
+  }
+}
+@media only screen and (min-width: 992px) {
+  body {
+    background-color: yellow;
+  }
+}
+@media only screen and (min-width: 1200px) {
+  body {
+    background-color: orange;
+  }
+}
+@media only screen and (min-width: 1400px) {
+  body {
+    background-color: red;
   }
 }

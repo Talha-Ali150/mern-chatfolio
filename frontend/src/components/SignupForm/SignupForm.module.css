@@ -1,4 +1,4 @@
-.loginFormStyling {
+/* .loginFormStyling {
   width: 100%;
 }
 .loginBtnStyling {
@@ -24,5 +24,54 @@
   .formBtnContainer {
     width: 60%;
     margin-left: 0;
+  }
+} */
+
+@media only screen and (min-width: 320px) {
+  body {
+    /* background-color: maroon; */
+  }
+  .loginFormStyling {
+    /* background-color: yellow; */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .formBtnContainer {
+    /* overflow: hidden; */
+    /* background-color: green; */
+    width: 30%;
+  }
+  .loginBtnStyling {
+    /* background-color: blue; */
+    color: white;
+    background-image: linear-gradient(to right, #f492f0, #a18dce);
+    /* width: 100%; */
+    margin: 0 auto;
+  }
+}
+@media only screen and (min-width: 576px) {
+  body {
+    background-color: blue;
+  }
+}
+@media only screen and (min-width: 768px) {
+  body {
+    background-color: green;
+  }
+}
+@media only screen and (min-width: 992px) {
+  body {
+    background-color: yellow;
+  }
+}
+@media only screen and (min-width: 1200px) {
+  body {
+    background-color: orange;
+  }
+}
+@media only screen and (min-width: 1400px) {
+  body {
+    background-color: red;
   }
 }

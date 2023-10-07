@@ -144,14 +144,14 @@ const SignupForm = () => {
       </Form.Item>
 
       <Form.Item
-        wrapperCol={{
-          offset: 10,
-          span: 16,
-        }}
+      // wrapperCol={
+      //   {
+      //     offset: 10,
+      //     span: 16,
+      //   }
+      // }
       >
-        <div
-          className={` container d-flex justify-content-between ${styles.formBtnContainer} `}
-        >
+        <div className={` container   ${styles.formBtnContainer} `}>
           <Button
             className={` ${styles.loginBtnStyling} btn-secondary`}
             onClick={handleSubmit}
