@@ -10,7 +10,7 @@ A React chat client and Express, MongoDB, and Socket.IO API.
 4. In `backend`, run `npm run dev`.
 5. In `frontend`, run `npm start`.
 
-The client defaults to `http://localhost:5000`. Set `REACT_APP_API_URL` at frontend build time to use a different API URL. Set `FRONTEND_URL` in the backend environment to the deployed client origin.
+The client defaults to `http://localhost:5000`. Set `REACT_APP_BACKEND_URL` (or `REACT_APP_API_URL`) in the frontend build environment to use a different API URL. Create React App only embeds variables prefixed with `REACT_APP_`. Set `FRONTEND_URL` in the backend environment to the deployed client origin.
 
 ## API overview
 
