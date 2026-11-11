@@ -91,11 +91,18 @@ export default function ChatsPage() {
   useEffect(() => {
     if (!userInfo?.token) return undefined;
     dispatch(getAllChats(userInfo.token));
-    const socket = io(API_URL, { auth: { token: userInfo.token } });
+    const socket = io(API_URL, {
+      auth: { token: userInfo.token },
+      // Vercel's Socket.IO endpoint is a WebSocket function; it does not
+      // support Socket.IO's initial HTTP long-polling handshake.
+      transports: ["websocket"],
+      timeout: 10000,
+    });
     socketRef.current = socket;
     socket.on("connect", () => {
       setPresenceReady(true);
       setPresenceUnavailable(false);
+      setNotice("");
       socket.emit("presence:sync");
       dispatch(getAllChats(userInfo.token));
       const activeChatId = activeChatRef.current;
@@ -163,10 +170,10 @@ export default function ChatsPage() {
         return next;
       });
     });
-    socket.on("connect_error", () => {
+    socket.on("connect_error", (error) => {
       setPresenceReady(false);
       setPresenceUnavailable(true);
-      setNotice("Realtime connection failed. Check the server and sign in again.");
+      setNotice(`Realtime connection failed: ${error.message || "unknown Socket.IO error"}`);
     });
     return () => {
       socket.disconnect();
