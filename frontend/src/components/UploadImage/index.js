@@ -1,56 +1,63 @@
-import { UploadOutlined } from "@ant-design/icons";
-import { Button, message, Upload } from "antd";
+import React, { useRef, useState } from "react";
+import { Alert, Avatar, Button, CircularProgress, Stack, Typography } from "@mui/material";
+import AddPhotoAlternateRoundedIcon from "@mui/icons-material/AddPhotoAlternateRounded";
 
 const UploadImage = ({ onImageUpload }) => {
-  // const handleFileChange = (info) => {
-  //   if (info.file.type === "image/png" || info.file.type === "image/jpeg") {
-  //     return;
-  //   }
-  //   if (info.file.status === "done") {
-  //     message.success(`${info.file.name} file uploaded successfully`);
-  //   } else if (info.file.status === "error") {
-  //     message.error(`${info.file.name} file upload failed.`);
-  //   }
-  // };
+  const inputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [error, setError] = useState("");
 
-  const customRequest = async ({ file, onSuccess, onFailure }) => {
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      setError("Choose a JPG or PNG image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Choose an image smaller than 5 MB.");
+      return;
+    }
+
+    setError("");
+    setUploading(true);
     try {
-      if (
-        !file.type.includes("image/jpeg") &&
-        !file.type.includes("image/png")
-      ) {
-        message.warning("please select a valid image");
-        return;
-      }
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", "mern-chatfolio");
-      data.append("cloud_name", "mern-notes");
-
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/mern-notes/image/upload",
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-      const myData = await response.json();
-      if (myData) {
-        const { url } = myData;
-        onSuccess(myData, file);
-        onImageUpload(url);
-        message.success("image uploaded successfully");
-      }
-    } catch (e) {
-      onFailure("failuer");
-      message.error(`error: ${e}`);
+      const body = new FormData();
+      body.append("file", file);
+      body.append("upload_preset", "mern-chatfolio");
+      const response = await fetch("https://api.cloudinary.com/v1_1/mern-notes/image/upload", { method: "POST", body });
+      const result = await response.json();
+      if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "Image upload failed.");
+      setImageUrl(result.secure_url);
+      onImageUpload(result.secure_url);
+    } catch (uploadError) {
+      setError(uploadError.message || "Image upload failed. Please try again.");
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <Upload customRequest={customRequest}>
-      <Button icon={<UploadOutlined />}>Click to Upload</Button>
-    </Upload>
+    <Stack spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Button
+          variant="outlined"
+          startIcon={uploading ? <CircularProgress size={16} /> : <AddPhotoAlternateRoundedIcon />}
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          sx={{ minHeight: 40, borderRadius: 3 }}
+        >
+          {uploading ? "Uploading…" : imageUrl ? "Change photo" : "Add a profile photo"}
+        </Button>
+        {imageUrl && <Avatar src={imageUrl} alt="Profile photo preview" sx={{ width: 36, height: 36 }} />}
+        <Typography variant="caption" color="text.secondary">Optional · JPG or PNG · up to 5 MB</Typography>
+      </Stack>
+      <input ref={inputRef} hidden type="file" accept="image/png,image/jpeg" onChange={handleFileChange} />
+      {error && <Alert severity="error" sx={{ py: 0, borderRadius: 2 }}>{error}</Alert>}
+    </Stack>
   );
 };
+
 export default UploadImage;

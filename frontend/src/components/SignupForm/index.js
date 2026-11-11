@@ -1,166 +1,55 @@
 import React, { useState } from "react";
 import styles from "./SignupForm.module.css";
-import { Form, Input, message } from "antd";
-import Button from "react-bootstrap/Button";
+import { Alert, Button, Stack, TextField } from "@mui/material";
+import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import UploadImage from "../UploadImage";
 import axios from "axios";
+import { API_URL } from "../../api";
+
+const defaultPic = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
 const SignupForm = () => {
-  const onFinish = (values) => {
-    console.log("Success: signup", values);
-  };
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const [values, setValues] = useState({ name: "", email: "", password: "", confirmPassword: "", pic: defaultPic });
+  const [feedback, setFeedback] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const setField = (field) => (event) => setValues((current) => ({ ...current, [field]: event.target.value }));
 
-  const initialFormValues = {
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    pic: "https://cdn-icons-png.flaticon.com/512/847/847969.png?w=360&t=st=1691752333~exp=1691752933~hmac=49e517354d0f015b7632af5b95093ff9765104dc66369e4eb6c8b235c911225e",
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const { email, password, name, confirmPassword, pic } = values;
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) return setFeedback({ severity: "warning", text: "Please fill in each field." });
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) return setFeedback({ severity: "warning", text: "Enter a valid email address." });
+    if (password.length < 8) return setFeedback({ severity: "warning", text: "Use at least 8 characters for your password." });
+    if (password !== confirmPassword) return setFeedback({ severity: "warning", text: "Your passwords don’t match." });
 
-  const [values, setValues] = useState(initialFormValues);
-
-  const handleImageUpload = (url) => {
-    setValues({ ...values, pic: url });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { email, password, name, confirmPassword } = values;
+    setSubmitting(true);
+    setFeedback(null);
     try {
-      if (!email || !password || !name) {
-        message.warning("please fill all the fields");
-      }
-
-      const isValidEmail =
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.email);
-
-      if (!isValidEmail) {
-        message.warning("Please enter a valid email address");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        message.warning("Passwords are different");
-        return;
-      } else {
-        const { name, email, password, pic } = values;
-        await axios.post("http://localhost:5000/api/users/", {
-          name: name,
-          email: email,
-          password: password,
-          pic: pic,
-        });
-        message.success("Sign Up Successful!");
-
-        window.location.reload(false);
-      }
-    } catch (e) {
-      message.error(e.response.data.message);
+      await axios.post(`${API_URL}/api/users/`, { name: name.trim(), email: email.trim(), password, pic });
+      setFeedback({ severity: "success", text: "Your account is ready. Sign in to start a conversation." });
+      setValues({ name: "", email: "", password: "", confirmPassword: "", pic: defaultPic });
+    } catch (error) {
+      setFeedback({ severity: "error", text: error.response?.data?.message || "We couldn’t create your account. Please try again." });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <Form
-      className={styles.loginFormStyling}
-      name="basic"
-      labelCol={{
-        span: 8,
-      }}
-      wrapperCol={{
-        span: 16,
-      }}
-      initialValues={{
-        remember: true,
-      }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
-    >
-      <Form.Item
-        label="Name"
-        name="Name"
-        onChange={(e) => setValues({ ...values, name: e.target.value })}
-        value={values.name}
-        rules={[
-          {
-            required: true,
-            message: "Please input your name!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="Email"
-        name="Email"
-        onChange={(e) => setValues({ ...values, email: e.target.value })}
-        value={values.email}
-        rules={[
-          {
-            required: true,
-            message: "Please input your email!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Password"
-        name="Password"
-        onChange={(e) => setValues({ ...values, password: e.target.value })}
-        value={values.password}
-        rules={[
-          {
-            required: true,
-            message: "Please input your password!",
-          },
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-      <Form.Item
-        label="Confirm"
-        name="Confirm"
-        onChange={(e) =>
-          setValues({ ...values, confirmPassword: e.target.value })
-        }
-        value={values.confirmPassword}
-        rules={[
-          {
-            required: true,
-            message: "Please input confirmation password!",
-          },
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-      <Form.Item label="Picture" name="Picture">
-        <UploadImage onImageUpload={handleImageUpload} />
-      </Form.Item>
-
-      <Form.Item
-      // wrapperCol={
-      //   {
-      //     offset: 10,
-      //     span: 16,
-      //   }
-      // }
-      >
-        <div className={` container   ${styles.formBtnContainer} `}>
-          <Button
-            className={` ${styles.loginBtnStyling} btn-secondary`}
-            onClick={handleSubmit}
-          >
-            Sign Up
-          </Button>
-        </div>
-      </Form.Item>
-    </Form>
+    <form className={styles.signupForm} onSubmit={handleSubmit}>
+      <Stack spacing={1.5}>
+        <TextField label="Your name" autoComplete="name" required fullWidth value={values.name} onChange={setField("name")} />
+        <TextField label="Email address" type="email" autoComplete="email" required fullWidth value={values.email} onChange={setField("email")} />
+        <TextField label="Password" type="password" autoComplete="new-password" required fullWidth value={values.password} onChange={setField("password")} />
+        <TextField label="Confirm password" type="password" autoComplete="new-password" required fullWidth value={values.confirmPassword} onChange={setField("confirmPassword")} />
+      </Stack>
+      <UploadImage onImageUpload={(url) => setValues((current) => ({ ...current, pic: url }))} />
+      {feedback && <Alert severity={feedback.severity} sx={{ mt: 1.5, borderRadius: 3 }}>{feedback.text}</Alert>}
+      <Button className={styles.signupButton} variant="contained" type="submit" fullWidth endIcon={<PersonAddAltRoundedIcon />} disabled={submitting}>
+        {submitting ? "Creating account…" : "Create account"}
+      </Button>
+    </form>
   );
 };
+
 export default SignupForm;

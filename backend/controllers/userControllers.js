@@ -8,7 +8,18 @@ const generateToken = require("../utils/generateToken");
 const registerUser = async (req, res) => {
   try {
     //name,email,password and pic are extracted from the request body using destructuring
-    const { name, email, password, pic } = req.body;
+    const { name, password, pic } = req.body;
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const normalizedName = String(name || "").trim();
+    if (!normalizedName || !email || !password) {
+      return res.status(400).json({ message: "name, email, and password are required" });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: "valid email is required" });
+    }
+    if (String(password).length < 8) {
+      return res.status(400).json({ message: "password must be at least 8 characters" });
+    }
 
     //findOne is mongoose method to find a document in the database
     //here finOne takes the email to find if that email exists or not
@@ -24,7 +35,7 @@ const registerUser = async (req, res) => {
     //if the email is not already in use
     //crete method of model is shortcut for saving one or more documents to the database
     const user = await User.create({
-      name,
+      name: normalizedName,
       email,
       password,
       pic,
@@ -49,6 +60,7 @@ const registerUser = async (req, res) => {
 
     //if there was a problem during the registration process that the server couldn't handle properly
   } catch (e) {
+    if (e.code === 11000) return res.status(409).json({ message: "email already exists" });
     res.status(500).json({ message: "an error occured while registration" });
   }
 };
@@ -56,7 +68,9 @@ const registerUser = async (req, res) => {
 //an asynchronous function is made for logging in already registered users
 const loginUser = async (req, res) => {
   //it extracts email and password from request body
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = String(req.body.email || "").trim().toLowerCase();
+  if (!email || !password) return res.status(400).json({ message: "email and password are required" });
 
   try {
     // it checks if there is a user with the email provided
@@ -72,12 +86,13 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         pic: user.pic,
+        isAdmin: user.isAdmin,
         token: generateToken(user._id),
       });
 
       // if user or password not matches send this response
     } else {
-      res.status(403).json("invalid username or password");
+      res.status(401).json({ message: "invalid email or password" });
     }
     //if there was a problem during the log in process that the server couldn't handle properly
   } catch (e) {
@@ -86,16 +101,17 @@ const loginUser = async (req, res) => {
 };
 
 const users = async (req, res) => {
+  const search = String(req.query.search || "").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const keyword = req.query.search
     ? {
         $or: [
-          { name: { $regex: req.query.search, $options: "i" } },
-          { email: { $regex: req.query.search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
         ],
       }
     : {};
   try {
-    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } }).select("name email pic").limit(50);
 
     res.json(users);
   } catch (e) {

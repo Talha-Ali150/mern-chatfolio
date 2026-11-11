@@ -12,14 +12,17 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await User.findById(decoded.id).select("-password");
+      if (!req.user) {
+        return res.status(401).json({ error: "user no longer exists" });
+      }
       next();
     } catch (e) {
-      res.status(401).json({ error: "invalid token provided" });
+      return res.status(401).json({ error: "invalid token provided" });
       console.log("invalid token access denied");
     }
   }
   if (!token) {
-    res.status(401).json({ error: "no token provided" });
+    return res.status(401).json({ error: "no token provided" });
     console.log("no token found");
   }
 };

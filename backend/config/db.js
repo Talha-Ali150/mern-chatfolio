@@ -13,7 +13,8 @@ const connectDatabase = async () => {
     console.log("database connected", connection.connection.host);
   } catch (e) {
     //the error is logged in order to get knowledge of the error and resolve it
-    console.log("error", e);
+    console.error("database connection failed", e.message);
+    throw e;
   }
 };
 

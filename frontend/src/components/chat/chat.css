@@ -1,0 +1,9 @@
+.chat-scroll-feed {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  padding: 1rem 0;
+  background-color: inherit;
+}

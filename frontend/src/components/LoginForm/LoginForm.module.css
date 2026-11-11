@@ -1,28 +1,9 @@
 .loginFormStyling {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
+
 .loginBtnStyling {
-  color: white;
-  background-image: linear-gradient(to right, #f492f0, #a18dce);
-}
-.loginBtnStyling:hover {
-  color: white;
-  background-image: linear-gradient(to right, #d84fd4, #7f5fca);
-}
-
-.formBtnContainer {
-  width: 60%;
-}
-
-@media screen and (max-width: 900px) {
-  body {
-    overflow: hidden;
-  }
-  .loginFormStyling {
-    width: 100%;
-  }
-  .formBtnContainer {
-    width: 60%;
-    margin-left: 0;
-  }
+  margin-top: 1.25rem;
 }

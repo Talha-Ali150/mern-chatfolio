@@ -18,13 +18,15 @@ const userSchema = mongoose.Schema(
       //unique makes sure that no email should be repeated
       unique: true,
       required: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       // type is defined and passing it's necessary or not depends on required true or false
       type: String,
       required: true,
     },
-    idAdmin: {
+    isAdmin: {
       // type is defined and passing it's necessary or not depends on required true or false
       type: Boolean,
       //default value is passed in case user has not selected something himself
