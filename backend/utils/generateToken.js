@@ -1,12 +1,11 @@
-//importing json web token library
-const jwt = require("jsonwebtoken");
+const jwt = require("./jwt");
 
 //making function to generate token using ID
 //ID is passed as parameter
 const generateToken = (id) => {
   //a method of jwt "sign" is passed the id, jwtSecret and other options such as expiry of token
   // and is retured to be used for authentication purpose
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
 //finally it's exported

@@ -17,7 +17,7 @@ const messageRouter = require("./routes/messageRoutes");
 
 //importing socket.io for realtime applications
 const socketIO = require("socket.io");
-const jwt = require("jsonwebtoken");
+const jwt = require("./utils/jwt");
 const User = require("./models/userModel");
 const Chat = require("./models/chatModel");
 const Message = require("./models/messageModel");
